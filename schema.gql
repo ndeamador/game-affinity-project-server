@@ -14,12 +14,14 @@ type Game {
 }
 
 type Mutation {
-  registerNewUser(inputData: UserRegisterInput!): User!
+  login(loginDetails: UserLoginDetails!): User!
+  registerNewUser(loginDetails: UserLoginDetails!): User!
 }
 
 type Query {
   findGames(name: String!): [Game!]
   gameHello: String!
+  me: User
   userHello: String!
 }
 
@@ -34,8 +36,7 @@ type User {
   username: String!
 }
 
-input UserRegisterInput {
+input UserLoginDetails {
   email: String!
   password: String!
-  username: String!
 }

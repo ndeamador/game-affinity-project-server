@@ -13,8 +13,8 @@ class User extends BaseEntity {
   id: number;
 
   @Field()
-  @Column({ unique: true })
-  username!: string;
+  @Column({ unique: true, nullable: true })
+  username: string;
 
   @Field()
   @Column({ unique: true })

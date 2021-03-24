@@ -12,7 +12,7 @@ export class GameResolver {
 
   constructor(private readonly gameService: GameService) { }
 
-  @Query(() => String)
+  @Query(_returns => String)
   gameHello() {
     return 'hi from GameResolver';
   }
