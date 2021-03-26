@@ -25,7 +25,12 @@ const main = async (): Promise<void> => {
 
   const app = express();
 
-  app.use(cors());
+  app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      credentials: true
+    })
+  );
 
   // Redis for sessions
   const RedisStore = connectRedis(session);
@@ -69,12 +74,16 @@ const main = async (): Promise<void> => {
 
   // Initialize Apollo Server (with applyMiddleWare for Express integration) https://www.apollographql.com/docs/apollo-server/integrations/middleware/#applying-middleware
   // This creates a GraphQL endpoint on Express, which we can access trhough localhost:PORT/graphql
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({
+    app,
+    // cors: { origin: 'http://localhost:3000' }
+    cors: { origin: false }
+  });
 
 
   const PORT = process.env.PORT;
 
-  app.listen(PORT || 3000, () => {
+  app.listen(PORT || 4000, () => {
     console.log(`Server running on port ${PORT}`);
   });
 };
