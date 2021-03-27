@@ -19,7 +19,12 @@ export class GameService {
       });
 
     if (response.ok) {
-      const credentials: Promise<IGDBCredentials> = await response.json();
+
+      const isCredentials = (uncheckedCredentials: any): uncheckedCredentials is IGDBCredentials => {
+        return
+      };
+
+      const credentials: IGDBCredentials = await response.json();
       // console.log(credentials);
       return credentials;
     }
@@ -31,15 +36,30 @@ export class GameService {
 
   };
 
-  findGamesInIGDB = async (name: string): Promise<Game[]> => {
+  findGamesInIGDB = async (name: string, id: number): Promise<Game[]> => {
 
     const { access_token } = await this.requestIGDBCredentials();
 
-    const requestBody = `
+    let requestBody = `
       fields name, first_release_date, summary;
-      limit 10;
-      search "${name}";
+    `;
+    if (name) {
+      requestBody += `
+        limit 10;
+        search "${name}";
       `;
+    }
+    else if (id) {
+      requestBody += `
+        where id = ${id};
+      `;
+    }
+
+    // const requestBody = `
+    //   fields name, first_release_date, summary;
+    //   limit 10;
+    //   search "${name}";
+    //   `;
 
     const response = await fetch('https://api.igdb.com/v4/games', {
       method: 'POST',
@@ -54,14 +74,14 @@ export class GameService {
       throw new Error('Unable to retrieve games from IGDB.');
     }
 
-    const games: Promise<Game[]> = await response.json();
+    const games: Game[] = await response.json();
 
     if (games.length === 0) {
       console.log(`No games found.`);
       return games;
     }
 
-    console.log('GAMES: ', games);
+    if(id) {console.log('GAMES: ', games)};
 
     return games;
 

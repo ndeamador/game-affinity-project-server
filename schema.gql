@@ -19,7 +19,7 @@ type Mutation {
 }
 
 type Query {
-  findGames(name: String!): [Game!]
+  findGames(id: Float, name: String): [Game!]
   gameHello: String!
   me: User
   userHello: String!

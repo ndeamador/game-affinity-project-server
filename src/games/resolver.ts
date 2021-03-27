@@ -19,9 +19,20 @@ export class GameResolver {
 
   @Query(_returns => [Game], { nullable: true })
   async findGames(
-    @Arg('name') name: string
+    @Arg('name', { nullable: true }) name: string,
+    @Arg('id',{ nullable: true }) id: number
   ): Promise<Game[]> {
-    console.log(`Looking for games containing "${name}"...`);
-    return await this.gameService.findGamesInIGDB(name);
+    console.log('here');
+
+    if (!name && !id) {
+      throw new Error('An argument is required.');
+    }
+    else if (name) {
+      console.log(`Looking for games containing "${name}"...`);
+    }
+    else if (id) {
+      console.log(`Searching game with id "${id}"...`);
+    }
+    return await this.gameService.findGamesInIGDB(name, id);
   }
 }
