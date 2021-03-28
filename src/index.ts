@@ -15,6 +15,7 @@ import { UserResolver } from './users/resolver';
 import redis, { RedisClient } from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
+import { COOKIE_NAME } from './constants';
 
 
 // We wrap our code in a main() function to be able to use async/await (used in TypeGraphQL's buildSchema)
@@ -38,7 +39,7 @@ const main = async (): Promise<void> => {
 
   app.use(
     session({
-      name: 'galleta',
+      name: COOKIE_NAME,
       store: new RedisStore({
         client: redisClient,
         disableTTL: true, // TTL: time to live, how long the session is active, if we wan't our sessions to be active permanently until manually disabled.
@@ -50,7 +51,7 @@ const main = async (): Promise<void> => {
         secure: app.get('env') === 'production' ? true : false, // Cookie only works in https
         sameSite: 'lax',
       },
-      saveUninitialized: false,
+      saveUninitialized: false, // Prevents that empty sessions are created.
       secret: process.env.SESSION_SECRET,
       resave: false, // False to prevent constant pinging to Redis
     })

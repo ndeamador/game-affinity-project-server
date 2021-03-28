@@ -15,6 +15,7 @@ type Game {
 
 type Mutation {
   login(loginDetails: UserLoginDetails!): User!
+  logout: Boolean!
   registerNewUser(loginDetails: UserLoginDetails!): User!
 }
 

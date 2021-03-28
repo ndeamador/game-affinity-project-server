@@ -81,7 +81,7 @@ export class GameService {
       return games;
     }
 
-    if(id) {console.log('GAMES: ', games)};
+    console.log('GAMES: ', games);
 
     return games;
 
