@@ -45,7 +45,7 @@ export class GameService {
     `;
     if (name) {
       requestBody += `
-        limit 10;
+        limit 6;
         search "${name}";
       `;
     }

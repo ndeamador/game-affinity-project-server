@@ -97,7 +97,8 @@ export class UserResolver {
   async logout(
     @Ctx() { req, res }: Context
   ) {
-       // Remove the session from Redis (renamed res to res_redis to prevent conflict with the res above):
+    console.log('Logging out');
+    // Remove the session from Redis (renamed res to res_redis to prevent conflict with the res above):
     return new Promise((res_redis) => {
 
       req.session.destroy((err) => {
