@@ -40,8 +40,10 @@ export class GameService {
 
     const { access_token } = await this.requestIGDBCredentials();
 
+    // Note that 'cover' is a different entity with it's own endpoint, but we can use IGDB expander feature to query cover.url instead of having to query two different endpoints
+    // https://api-docs.igdb.com/#expander
     let requestBody = `
-      fields name, first_release_date, summary;
+      fields name, first_release_date, summary, cover.image_id;
     `;
     if (name) {
       requestBody += `

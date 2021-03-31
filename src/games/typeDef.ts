@@ -1,5 +1,6 @@
 import { Field, ObjectType, ID } from "type-graphql";
-import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import Cover from '../gameCovers/typeDef';
 
 // The @ObjectType decorator marks the class as the type known from GraphQL SDL or GraphQLObjectType from graphql-js
 // Extending BaseEntity allows us to use User.find or User.create, among other useful methods.
@@ -14,8 +15,12 @@ class Game extends BaseEntity {
   @Field(_type => ID)
   id: string;
 
+  @Column({ nullable: true })
+  @Field({ nullable: true, description: 'Game id in IGDB' })
+  igdb_id: string;
+
   @Column()
-  @Field({ description: 'testing description' })
+  @Field()
   name: string;
 
   @Column({ nullable: true })
@@ -26,15 +31,16 @@ class Game extends BaseEntity {
   @Field({ nullable: true })
   firstReleaseDate: Date;
 
-  @Column({ nullable: true})
-  @Field({ nullable: true})
-  cover: string;
-
   @CreateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
   @UpdateDateColumn({ name: 'created_at' })
   createdAt: Date;
+
+  @OneToOne(_relatedTo => Cover)
+  @JoinColumn()
+  @Field({ nullable: true})
+  cover: Cover;
 }
 
 export default Game;

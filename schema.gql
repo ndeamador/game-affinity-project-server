@@ -3,12 +3,26 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Cover {
+  alpha_channel: Boolean
+  animated: Boolean
+  checksum: String
+  height: Float
+  id: ID!
+
+  """Cover id in IGDB"""
+  image_id: String
+  url: String
+  width: Float
+}
+
 type Game {
-  cover: String
+  cover: Cover
   firstReleaseDate: Timestamp
   id: ID!
 
-  """testing description"""
+  """Game id in IGDB"""
+  igdb_id: String
   name: String!
   summary: String
 }
