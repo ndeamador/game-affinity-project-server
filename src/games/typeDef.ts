@@ -1,6 +1,7 @@
 import { Field, ObjectType, ID } from "type-graphql";
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import Cover from '../gameCovers/typeDef';
+import UserGameFile from '../userGameFile/typeDef';
 
 // The @ObjectType decorator marks the class as the type known from GraphQL SDL or GraphQLObjectType from graphql-js
 // Extending BaseEntity allows us to use User.find or User.create, among other useful methods.
@@ -41,6 +42,9 @@ class Game extends BaseEntity {
   @JoinColumn()
   @Field({ nullable: true})
   cover: Cover;
+
+  @OneToMany(() => UserGameFile, userGameFile => userGameFile.game)
+  public userGameFiles!: UserGameFile[];
 }
 
 export default Game;

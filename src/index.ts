@@ -10,6 +10,7 @@ import cors from 'cors'; // to allow client and server to run in different ports
 // Resolvers
 import { GameResolver } from './games/resolver';
 import { UserResolver } from './users/resolver';
+import { GameInUserLibraryResolver } from './gameInUserLibrary/resolver';
 
 // For sessions
 import redis, { RedisClient } from 'redis';
@@ -59,7 +60,7 @@ const main = async (): Promise<void> => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [GameResolver, UserResolver],
+      resolvers: [GameResolver, UserResolver, GameInUserLibraryResolver],
       // validate: false, // validation using class-validator is enabled by default, we can disable it if we want to use a different method.
       dateScalarMode: "timestamp", // Change date format from the default ISO to timestamps (for IGDB database fields)
       container: Container,

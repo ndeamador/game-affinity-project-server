@@ -1,10 +1,12 @@
-import { Arg, Query, Resolver, Mutation, Ctx, ObjectType, Field } from 'type-graphql';
+import { Arg, Query, Resolver, Mutation, Ctx, ObjectType, Field, UseMiddleware, Int } from 'type-graphql';
 import bcrypt from 'bcrypt';
 import User from './typeDef';
 import { Service } from 'typedi';
 import { UserLoginDetails } from './registerInput';
 import { Context } from '../types';
 import { COOKIE_NAME } from '../constants';
+import { isUserAuthenticated } from '../middleware/isUserAuthenticated';
+import UserGameFile from '../userGameFile/typeDef';
 
 @Service() // Seems required even when not using a service in a different file when using "Container" in the creation of the Apollo Server.
 @Resolver(_of => User)
@@ -17,7 +19,7 @@ export class UserResolver {
   // ----------------------------------
   // REGISTER USER
   // ----------------------------------
-  @Mutation(() => User)
+  @Mutation(_returns => User)
   async registerNewUser(
     @Arg('loginDetails') { email, password }: UserLoginDetails,
     @Ctx() { req }: Context
@@ -46,7 +48,7 @@ export class UserResolver {
   // ----------------------------------
   // LOGIN
   // ----------------------------------
-  @Mutation(() => User)
+  @Mutation(_returns => User)
   async login(
     @Arg('loginDetails') { email, password }: UserLoginDetails,
     @Ctx() { req }: Context
@@ -93,7 +95,7 @@ export class UserResolver {
   // ----------------------------------
   // LOGOUT
   // ----------------------------------
-  @Mutation(() => Boolean)
+  @Mutation(_returns => Boolean)
   async logout(
     @Ctx() { req, res }: Context
   ) {
@@ -114,6 +116,7 @@ export class UserResolver {
         res_redis(true);
       });
     });
-
   }
+
+
 }

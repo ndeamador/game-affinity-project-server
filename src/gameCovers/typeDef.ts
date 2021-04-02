@@ -9,7 +9,7 @@ class Cover extends BaseEntity {
 
   @PrimaryGeneratedColumn()
   @Field(_type => ID)
-  id: string;	// The ID of the image used to construct an IGDB image link
+  id: string;
 
   @Column({ nullable: true })
   @Field({ nullable: true, description: 'Cover id in IGDB'  })

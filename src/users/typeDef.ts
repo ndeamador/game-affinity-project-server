@@ -1,5 +1,6 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
+import GameInUserLibrary from '../gameInUserLibrary/typeDef';
 
 // Extending BaseEntity allows us to use User.find or User.create
 // There is no need to create the database table manually, TypeORM generates it automatically
@@ -10,7 +11,7 @@ class User extends BaseEntity {
 
   @Field(() => ID)
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Field()
   @Column({ unique: true, nullable: true })
@@ -29,6 +30,10 @@ class User extends BaseEntity {
 
   @UpdateDateColumn({ name: 'created_at' })
   createdAt: Date;
+
+  @OneToMany(() => GameInUserLibrary, gameInUserLibrary => gameInUserLibrary.user) //gameInUserLibrary => gameInUserLibrary.user returns the name of the inverse side of the relation.
+  public gamesInLibrary!: GameInUserLibrary[];
+
 }
 
 export default User;

@@ -27,15 +27,24 @@ type Game {
   summary: String
 }
 
+type GameInUserLibrary {
+  id: ID!
+  igdb_game_id: Int!
+}
+
 type Mutation {
+  addGameToLibrary(gameId: Int!): GameInUserLibrary!
   login(loginDetails: UserLoginDetails!): User!
   logout: Boolean!
   registerNewUser(loginDetails: UserLoginDetails!): User!
+  removeGameFromLibrary(gameId: Int!): GameInUserLibrary!
 }
 
 type Query {
+  GameInUserLibraryHello: String!
   findGames(id: Float, name: String): [Game!]
   gameHello: String!
+  getLibrary: [GameInUserLibrary!]!
   me: User
   userHello: String!
 }

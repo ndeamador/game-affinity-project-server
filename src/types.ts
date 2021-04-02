@@ -8,5 +8,5 @@ export interface Context {
 }
 
 export interface CustomSession extends Session {
-  userId?: number
+  userId?: number;
 }
