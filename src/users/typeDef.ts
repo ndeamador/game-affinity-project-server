@@ -31,8 +31,9 @@ class User extends BaseEntity {
   @UpdateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
+  @Field(_type => [GameInUserLibrary])
   @OneToMany(() => GameInUserLibrary, gameInUserLibrary => gameInUserLibrary.user) //gameInUserLibrary => gameInUserLibrary.user returns the name of the inverse side of the relation.
-  public gamesInLibrary!: GameInUserLibrary[];
+  gamesInLibrary!: GameInUserLibrary[];
 
 }
 

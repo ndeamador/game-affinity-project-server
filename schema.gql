@@ -57,6 +57,7 @@ scalar Timestamp
 
 type User {
   email: String!
+  gamesInLibrary: [GameInUserLibrary!]!
   id: ID!
   username: String!
 }

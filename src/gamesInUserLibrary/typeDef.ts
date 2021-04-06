@@ -10,8 +10,9 @@ class GameInUserLibrary extends BaseEntity {
   @Field(_type => ID)
   id!: number;
 
+  // @Field(_type => User)
   @ManyToOne(() => User, user => user.gamesInLibrary)
-  public user!: User;
+  user!: User;
 
   // For now we are not going to store games in our database, so we remove the connection to the Game entity.
   // @ManyToOne(() => Game, game => game.GamesInLibrary)

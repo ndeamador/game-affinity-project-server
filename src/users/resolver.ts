@@ -5,6 +5,8 @@ import { Service } from 'typedi';
 import { UserLoginDetails } from './registerInput';
 import { Context } from '../types';
 import { COOKIE_NAME } from '../constants';
+import GameInUserLibrary from '../gamesInUserLibrary/typeDef';
+import { getRepository } from 'typeorm';
 
 @Service() // Seems required even when not using a service in a different file when using "Container" in the creation of the Apollo Server.
 @Resolver(_of => User)
@@ -86,7 +88,16 @@ export class UserResolver {
     }
     console.log('In session');
 
-    const currentUser = await User.findOne({ id: req.session.userId });
+    const currentUser = await User.findOne({where: { id: req.session.userId },  relations: ['gamesInLibrary']});
+
+    // const libraryRepository = getRepository(GameInUserLibrary);
+    // const gamesPopulatedWithUser = await libraryRepository.find({ relations: ['user'] });
+    // console.log('gamesPopulatedWithUser ===========================\n ', gamesPopulatedWithUser);
+
+    // const userRepository = getRepository(User);
+    // const userPopulatedWithGames = await userRepository.find({ relations: ['gamesInLibrary'] });
+    // console.log('userswithgamesinside ===========================\n ', userPopulatedWithGames);
+
     return currentUser;
   }
 

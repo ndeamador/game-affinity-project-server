@@ -7,6 +7,7 @@ import User from '../users/typeDef';
 import { GameResolver } from '../games/resolver';
 import { GameService } from '../games/service';
 import Game from '../games/typeDef';
+import { getConnection } from 'typeorm';
 
 
 @Service()
@@ -39,6 +40,7 @@ export class GameInUserLibraryResolver {
     gameInLibrary.user = foundUser;
     gameInLibrary.igdb_game_id = gameId;
 
+    // const savedGameInLibrary = await getConnection().manager.save(gameInLibrary);
     const savedGameInLibrary = await gameInLibrary.save();
 
     console.log('Game saved to library: ', savedGameInLibrary);
