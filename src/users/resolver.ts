@@ -1,12 +1,10 @@
-import { Arg, Query, Resolver, Mutation, Ctx, ObjectType, Field, UseMiddleware, Int } from 'type-graphql';
+import { Arg, Query, Resolver, Mutation, Ctx } from 'type-graphql';
 import bcrypt from 'bcrypt';
 import User from './typeDef';
 import { Service } from 'typedi';
 import { UserLoginDetails } from './registerInput';
 import { Context } from '../types';
 import { COOKIE_NAME } from '../constants';
-import { isUserAuthenticated } from '../middleware/isUserAuthenticated';
-import UserGameFile from '../userGameFile/typeDef';
 
 @Service() // Seems required even when not using a service in a different file when using "Container" in the creation of the Apollo Server.
 @Resolver(_of => User)
@@ -24,11 +22,11 @@ export class UserResolver {
     @Arg('loginDetails') { email, password }: UserLoginDetails,
     @Ctx() { req }: Context
   ): Promise<User> {
-
+    console.log('Registering new user...');
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const newUser: Promise<User> = await User.create({
+    const newUser = await User.create({
       email,
       password: hashedPassword
     })
@@ -53,6 +51,7 @@ export class UserResolver {
     @Arg('loginDetails') { email, password }: UserLoginDetails,
     @Ctx() { req }: Context
   ): Promise<User> {
+    console.log('Logging in...');
 
     const user = await User.findOne({ where: { email: email.toLowerCase() } });
 
@@ -80,13 +79,12 @@ export class UserResolver {
   async me(
     @Ctx() { req }: Context
   ) {
-    console.log('in me query');
+    console.log('In me query');
     if (!req.session.userId) {
-      console.log('no session');
+      console.log('No session');
       return null;
     }
-
-    console.log('session');
+    console.log('In session');
 
     const currentUser = await User.findOne({ id: req.session.userId });
     return currentUser;
@@ -99,7 +97,7 @@ export class UserResolver {
   async logout(
     @Ctx() { req, res }: Context
   ) {
-    console.log('Logging out');
+    console.log('Logging out...');
     // Remove the session from Redis (renamed res to res_redis to prevent conflict with the res above):
     return new Promise((res_redis) => {
 
@@ -117,6 +115,4 @@ export class UserResolver {
       });
     });
   }
-
-
 }

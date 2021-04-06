@@ -10,7 +10,7 @@ import cors from 'cors'; // to allow client and server to run in different ports
 // Resolvers
 import { GameResolver } from './games/resolver';
 import { UserResolver } from './users/resolver';
-import { GameInUserLibraryResolver } from './gameInUserLibrary/resolver';
+import { GameInUserLibraryResolver } from './gamesInUserLibrary/resolver';
 
 // For sessions
 import redis, { RedisClient } from 'redis';

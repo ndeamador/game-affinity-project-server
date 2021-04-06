@@ -36,7 +36,10 @@ export class GameService {
 
   };
 
-  findGamesInIGDB = async (name: string, id: number): Promise<Game[]> => {
+  findGamesInIGDB = async (name: string, id: number[], maxResults = 6): Promise<Game[]> => {
+    console.log('======================================================');
+    console.log('Finding games in IGDB...\n------------------------------------------------------');
+    console.log(`Arguments: name-> ${name}, id-> ${id}, maxResults -> ${maxResults}`);
 
     const { access_token } = await this.requestIGDBCredentials();
 
@@ -47,15 +50,21 @@ export class GameService {
     `;
     if (name) {
       requestBody += `
-        limit 6;
+        limit ${maxResults};
         search "${name}";
       `;
     }
+    // else if (id) {
+    //   requestBody += `
+    //     where id = ${id};
+    //   `;
+    // }
     else if (id) {
       requestBody += `
-        where id = ${id};
+        where id = (${id});
       `;
     }
+
 
     // const requestBody = `
     //   fields name, first_release_date, summary;
@@ -83,7 +92,7 @@ export class GameService {
       return games;
     }
 
-    console.log('GAMES: ', games);
+    console.log('GAMES: ', games.map(game => game.name));
 
     return games;
 

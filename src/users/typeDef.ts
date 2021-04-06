@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
-import GameInUserLibrary from '../gameInUserLibrary/typeDef';
+import GameInUserLibrary from '../gamesInUserLibrary/typeDef';
 
 // Extending BaseEntity allows us to use User.find or User.create
 // There is no need to create the database table manually, TypeORM generates it automatically

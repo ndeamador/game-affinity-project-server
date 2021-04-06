@@ -1,6 +1,5 @@
 import { Field, ID, Int, ObjectType } from 'type-graphql';
-import { BaseEntity, Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import Game from '../games/typeDef';
+import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import User from '../users/typeDef';
 
 @ObjectType()
@@ -11,7 +10,7 @@ class GameInUserLibrary extends BaseEntity {
   @Field(_type => ID)
   id!: number;
 
-  @ManyToOne(() => User, user => user.GamesInLibrary)
+  @ManyToOne(() => User, user => user.gamesInLibrary)
   public user!: User;
 
   // For now we are not going to store games in our database, so we remove the connection to the Game entity.

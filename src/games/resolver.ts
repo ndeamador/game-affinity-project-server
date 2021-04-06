@@ -1,4 +1,4 @@
-import { Arg, Query, Resolver } from 'type-graphql';
+import { Arg, Int, Query, Resolver } from 'type-graphql';
 import Game from '../games/typeDef';
 import { GameService } from './service';
 import { Service } from 'typedi';
@@ -20,9 +20,11 @@ export class GameResolver {
   @Query(_returns => [Game], { nullable: true })
   async findGames(
     @Arg('name', { nullable: true }) name: string,
-    @Arg('id',{ nullable: true }) id: number
+    @Arg('id', () => [Int], { nullable: true }) id: number[],
+    @Arg('maxResults', () => Int, { nullable: true }) maxResults: number
   ): Promise<Game[]> {
-    console.log('here');
+    console.log('======================================================');
+    console.log('Finding games...\n------------------------------------------------------');
 
     if (!name && !id) {
       throw new Error('An argument is required.');
@@ -33,6 +35,6 @@ export class GameResolver {
     else if (id) {
       console.log(`Searching game with id "${id}"...`);
     }
-    return await this.gameService.findGamesInIGDB(name, id);
+    return await this.gameService.findGamesInIGDB(name, id, maxResults);
   }
 }
