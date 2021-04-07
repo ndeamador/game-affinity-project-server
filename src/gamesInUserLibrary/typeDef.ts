@@ -10,7 +10,7 @@ class GameInUserLibrary extends BaseEntity {
   @Field(_type => ID)
   id!: number;
 
-  // @Field(_type => User)
+  @Field(_type => User)
   @ManyToOne(() => User, user => user.gamesInLibrary)
   user!: User;
 

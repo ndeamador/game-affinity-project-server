@@ -1,13 +1,13 @@
 import { Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware } from 'type-graphql';
 import { Service } from 'typedi';
 import GameInUserLibrary from './typeDef';
-import { Context } from '../types';
+import { Context, TypeORMDeleteResponse } from '../types';
 import { isUserAuthenticated } from '../middleware/isUserAuthenticated';
 import User from '../users/typeDef';
 import { GameResolver } from '../games/resolver';
 import { GameService } from '../games/service';
 import Game from '../games/typeDef';
-import { getConnection } from 'typeorm';
+import { DeleteResult, getConnection, getManager } from 'typeorm';
 
 
 @Service()
@@ -52,19 +52,19 @@ export class GameInUserLibraryResolver {
   // ----------------------------------
   // REMOVE GAME FROM LIBRARY
   // ----------------------------------
-  @Mutation(_returns => GameInUserLibrary)
+  @Mutation(_returns => Boolean)
   @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
   async removeGameFromLibrary(
     @Ctx() { req }: Context,
     @Arg('gameId', _type => Int) gameId: number
   ) {
-    console.log('Removing game from library...');
+    console.log(`Removing game from library...\n------------------------------------------------`);
     const { userId } = req.session;
-    const foundGame = await GameInUserLibrary.findOneOrFail({ where: [{ user: userId }, { igdb_game_id: gameId }] });
-    console.log(foundGame);
-    // GameInUserLibrary.softRemove()
 
-    return await GameInUserLibrary.remove(foundGame);
+    const response = await GameInUserLibrary.delete({ igdb_game_id: gameId, user: { id: userId } });
+    console.log('response: ', response);
+
+    return response.affected === 0 ? false : true;
   }
 
 

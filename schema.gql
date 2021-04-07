@@ -30,6 +30,7 @@ type Game {
 type GameInUserLibrary {
   id: ID!
   igdb_game_id: Int!
+  user: User!
 }
 
 type Mutation {
@@ -37,7 +38,7 @@ type Mutation {
   login(loginDetails: UserLoginDetails!): User!
   logout: Boolean!
   registerNewUser(loginDetails: UserLoginDetails!): User!
-  removeGameFromLibrary(gameId: Int!): GameInUserLibrary!
+  removeGameFromLibrary(gameId: Int!): Boolean!
 }
 
 type Query {
