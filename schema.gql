@@ -4,25 +4,16 @@
 # -----------------------------------------------
 
 type Cover {
-  alpha_channel: Boolean
-  animated: Boolean
-  checksum: String
-  height: Float
   id: ID!
 
   """Cover id in IGDB"""
   image_id: String
-  url: String
-  width: Float
 }
 
 type Game {
   cover: Cover
-  firstReleaseDate: Timestamp
+  first_release_date: Float
   id: ID!
-
-  """Game id in IGDB"""
-  igdb_id: Float
   name: String!
   summary: String
 }
@@ -38,7 +29,7 @@ type Mutation {
   login(loginDetails: UserLoginDetails!): User!
   logout: Boolean!
   registerNewUser(loginDetails: UserLoginDetails!): User!
-  removeGameFromLibrary(gameId: Int!): Boolean!
+  removeGameFromLibrary(igdb_game_id: Int!): Boolean!
 }
 
 type Query {
@@ -50,11 +41,6 @@ type Query {
   me: User
   userHello: String!
 }
-
-"""
-The javascript `Date` as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
-"""
-scalar Timestamp
 
 type User {
   email: String!

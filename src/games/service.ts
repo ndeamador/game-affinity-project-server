@@ -1,12 +1,50 @@
 import { Service } from 'typedi';
 import Game from './typeDef';
 import fetch from 'node-fetch';
+import { Cover, Genre, Platform } from '../minorEntities/typeDef';
 
 interface IGDBCredentials {
   access_token: string,
   expires_in: number,
   token_type: string
 }
+
+// interface IGDBPlatform{
+//   id: number,
+//   name: string,
+// }
+
+// interface IGDBGenre{
+//   id: number,
+//   name: string,
+// }
+
+// interface IGDBCompany{
+//   id: number,
+//   name: string,
+//   country: number,
+//   description: string,
+//   developed: number[],
+//   start_date: Date,
+// }
+
+// interface IGDBInvolvedCompany{
+//   id: number,
+//   company: number,
+//   developer: boolean,
+//   publisher: boolean,
+// }
+
+// interface IGDBGame {
+//   id: number,
+//   name: string,
+//   first_release_date: Date,
+//   summary: string,
+//   // genres: Genre[],
+//   // platforms: Platform[],
+//   // involved_companies:,
+//   cover: Cover,
+// }
 
 @Service()
 export class GameService {
@@ -85,16 +123,31 @@ export class GameService {
       throw new Error('Unable to retrieve games from IGDB.');
     }
 
-    const games: Game[] = await response.json();
+    const games = await response.json() as Game[];
 
     if (games.length === 0) {
       console.log(`No games found.`);
-      return games;
+      return [];
     }
 
-    console.log('GAMES: ', games.map(game => game.name));
+    console.log('GAMES: ', games.map(game => `${game.name}`));
+    console.log('FIRST GAME: ', games[0]);
+
+
+    // const games = unformattedGames.map(game => ({
+    //   // id: game.id,
+    //   // name: game.name,
+    //   // summary: game.summary,
+    //   // cover: game.cover,
+    //   ...game,
+    //   firstReleaseDate: game.first_release_date,
+    //   // genres: Genre[],
+    //   // platforms: Platform[],
+    //   // involved_companies:,
+    // }));
+    // console.log('UNFORMATTED: ', unformattedGames);
+    // console.log('FORMATTED: ', games);
 
     return games;
-
   };
 }

@@ -56,12 +56,12 @@ export class GameInUserLibraryResolver {
   @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
   async removeGameFromLibrary(
     @Ctx() { req }: Context,
-    @Arg('gameId', _type => Int) gameId: number
+    @Arg('igdb_game_id', _type => Int) igdb_game_id: number
   ) {
     console.log(`Removing game from library...\n------------------------------------------------`);
     const { userId } = req.session;
 
-    const response = await GameInUserLibrary.delete({ igdb_game_id: gameId, user: { id: userId } });
+    const response = await GameInUserLibrary.delete({ igdb_game_id: igdb_game_id, user: { id: userId } });
     console.log('response: ', response);
 
     return response.affected === 0 ? false : true;
