@@ -5,8 +5,8 @@ import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, U
 @ObjectType()
 export class Cover {
 
-  @Field(_type => ID)
-  id: string;
+  @Field()
+  id: number;
 
   @Field({ nullable: true, description: 'Cover id in IGDB' })
   image_id: string;	// The ID of the image used to construct an IGDB image link
@@ -17,8 +17,8 @@ export class Cover {
 @ObjectType()
 export class Genre  {
 
-  @Field(_type => ID)
-  id: string;
+  @Field()
+  id: number;
 
   @Field()
   name: string;
@@ -28,11 +28,17 @@ export class Genre  {
 @ObjectType()
 export class Platform {
 
-  @Field(_type => ID)
-  id: string;
+  @Field()
+  id: number;
 
   @Field()
   name: string;
+
+  @Field({nullable: true})
+  platform_family: number; //  Nintendo: 5 - Linux: 4 - Sega: 3 = Xbox: 2 - PlayStation: 1
+
+  @Field({nullable: true})
+  category: number; // console	1  arcade	2  platform	3  operating_system	4  portable_console	5  computer	6
 }
 
 

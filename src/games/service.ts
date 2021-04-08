@@ -95,6 +95,8 @@ export class GameService {
         cover.image_id,
         platforms.id,
         platforms.name,
+        platforms.platform_family,
+        platforms.category,
         genres.id,
         genres.name;
       `;
@@ -111,12 +113,6 @@ export class GameService {
     }
 
 
-    // const requestBody = `
-    //   fields name, first_release_date, summary;
-    //   limit 10;
-    //   search "${name}";
-    //   `;
-
     const response = await fetch('https://api.igdb.com/v4/games', {
       method: 'POST',
       body: requestBody,
@@ -125,6 +121,7 @@ export class GameService {
         'Client-ID': process.env.TWITCH_CLIENT_ID
       }
     });
+
 
     if (!response.ok) {
       throw new Error('Unable to retrieve games from IGDB.');
@@ -136,6 +133,8 @@ export class GameService {
       console.log(`No games found.`);
       return [];
     }
+
+
 
     console.log('GAMES: ', games.map(game => `${game.name} - ${game.total_rating_count}`));
     console.log('FIRST GAME: ', games[0]);

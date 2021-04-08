@@ -4,7 +4,7 @@
 # -----------------------------------------------
 
 type Cover {
-  id: ID!
+  id: Float!
 
   """Cover id in IGDB"""
   image_id: String
@@ -28,7 +28,7 @@ type GameInUserLibrary {
 }
 
 type Genre {
-  id: ID!
+  id: Float!
   name: String!
 }
 
@@ -41,8 +41,10 @@ type Mutation {
 }
 
 type Platform {
-  id: ID!
+  category: Float
+  id: Float!
   name: String!
+  platform_family: Float
 }
 
 type Query {
