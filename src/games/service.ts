@@ -2,6 +2,7 @@ import { Service } from 'typedi';
 import Game from './typeDef';
 import fetch from 'node-fetch';
 import { Cover, Genre, Platform } from '../minorEntities/typeDef';
+import { max } from 'class-validator';
 
 interface IGDBCredentials {
   access_token: string,
@@ -79,24 +80,30 @@ export class GameService {
     console.log('Finding games in IGDB...\n------------------------------------------------------');
     console.log(`Arguments: name-> ${name}, id-> ${id}, maxResults -> ${maxResults}`);
 
+    if (maxResults < 1) return [];
+
     const { access_token } = await this.requestIGDBCredentials();
 
-    // Note that 'cover' is a different entity with it's own endpoint, but we can use IGDB expander feature to query cover.url instead of having to query two different endpoints
+    // Note that 'cover', 'genres', 'platforms', etc. are a different entities with their own endpoint, but we can use IGDB expander feature to query, forinstance, cover.url instead of having to query two different endpoints
     // https://api-docs.igdb.com/#expander
     let requestBody = `
-      fields name, first_release_date, summary, cover.image_id;
-    `;
+      fields
+        total_rating_count,
+        name,
+        first_release_date,
+        summary,
+        cover.image_id,
+        platforms.id,
+        platforms.name,
+        genres.id,
+        genres.name;
+      `;
     if (name) {
       requestBody += `
-        limit ${maxResults};
+        limit ${Math.max(maxResults, 20)};
         search "${name}";
       `;
     }
-    // else if (id) {
-    //   requestBody += `
-    //     where id = ${id};
-    //   `;
-    // }
     else if (id) {
       requestBody += `
         where id = (${id});
@@ -130,24 +137,34 @@ export class GameService {
       return [];
     }
 
-    console.log('GAMES: ', games.map(game => `${game.name}`));
+    console.log('GAMES: ', games.map(game => `${game.name} - ${game.total_rating_count}`));
     console.log('FIRST GAME: ', games[0]);
 
 
-    // const games = unformattedGames.map(game => ({
-    //   // id: game.id,
-    //   // name: game.name,
-    //   // summary: game.summary,
-    //   // cover: game.cover,
-    //   ...game,
-    //   firstReleaseDate: game.first_release_date,
-    //   // genres: Genre[],
-    //   // platforms: Platform[],
-    //   // involved_companies:,
-    // }));
-    // console.log('UNFORMATTED: ', unformattedGames);
-    // console.log('FORMATTED: ', games);
+    const onlyRatedGames = games.filter(game => game.total_rating_count);
+    let requiredGames = onlyRatedGames;
 
-    return games;
+    if (onlyRatedGames.length === 0) {
+      // if no games have ratings, return the response as is.
+      return games;
+    }
+    else if (onlyRatedGames.length > 0) {
+      // sort the games with ratings by number of ratings
+      requiredGames.sort((a, b) => b.total_rating_count - a.total_rating_count);
+
+      // If there are not enough rated games to fulfil maxResults, fill the response with unrated games:
+      if (requiredGames.length < maxResults) {
+        const onlyUnratedGames = games.filter(game => !game.total_rating_count);
+
+        requiredGames = requiredGames.concat(onlyUnratedGames.slice(0, maxResults - requiredGames.length));
+      }
+    }
+
+
+    // limit response size to maxResults
+    const slicedGames = requiredGames.slice(0, maxResults);
+    console.log('after slice size: ', slicedGames.length, slicedGames.map(game => `${game.name} - ${game.total_rating_count}`));
+
+    return slicedGames;
   };
 }
