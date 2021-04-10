@@ -1,6 +1,6 @@
 import { Field, ObjectType, ID } from "type-graphql";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Cover, Genre, Platform } from '../minorEntities/typeDef';
+import { Cover, Genre, InvolvedCompany, Platform } from '../minorEntities/typeDef';
 
 
 // interface IGDBGame {
@@ -49,6 +49,9 @@ class Game {
 
   @Field()
   total_rating_count: number;
+
+  @Field(_type => [InvolvedCompany], {nullable: true})
+  involved_companies: InvolvedCompany[];
 }
 
 

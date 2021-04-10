@@ -3,6 +3,11 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Company {
+  id: Float!
+  name: String
+}
+
 type Cover {
   id: Float!
 
@@ -15,6 +20,7 @@ type Game {
   first_release_date: Float
   genres: [Genre!]
   id: ID!
+  involved_companies: [InvolvedCompany!]
   name: String!
   platforms: [Platform!]
   summary: String
@@ -24,6 +30,7 @@ type Game {
 type GameInUserLibrary {
   id: ID!
   igdb_game_id: Int!
+  rating: Float
   user: User!
 }
 
@@ -32,12 +39,19 @@ type Genre {
   name: String!
 }
 
+type InvolvedCompany {
+  company: Company
+  developer: Boolean
+  id: Float!
+}
+
 type Mutation {
-  addGameToLibrary(gameId: Int!): GameInUserLibrary!
+  addGameToLibrary(gameId: Int!, rating: Int): GameInUserLibrary!
   login(loginDetails: UserLoginDetails!): User!
   logout: Boolean!
   registerNewUser(loginDetails: UserLoginDetails!): User!
   removeGameFromLibrary(igdb_game_id: Int!): Boolean!
+  updateRating(gameId: Int!, rating: Int!): Boolean!
 }
 
 type Platform {

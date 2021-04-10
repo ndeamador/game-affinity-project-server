@@ -15,7 +15,7 @@ export class Cover {
 
 // https://api-docs.igdb.com/#genre
 @ObjectType()
-export class Genre  {
+export class Genre {
 
   @Field()
   id: number;
@@ -34,12 +34,47 @@ export class Platform {
   @Field()
   name: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   platform_family: number; //  Nintendo: 5 - Linux: 4 - Sega: 3 = Xbox: 2 - PlayStation: 1
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   category: number; // console	1  arcade	2  platform	3  operating_system	4  portable_console	5  computer	6
 }
+
+
+// https://api-docs.igdb.com/#involved-company
+@ObjectType()
+export class Company {
+
+  @Field()
+  id: number;
+
+  @Field({ nullable: true })
+  name: string;
+}
+
+
+// https://api-docs.igdb.com/#involved-company
+@ObjectType()
+export class InvolvedCompany {
+
+  @Field()
+  id: number;
+
+  @Field({ nullable: true })
+  developer: boolean;
+
+  @Field({ nullable: true })
+  company: Company;
+}
+
+
+
+
+
+
+
+
 
 
 // // https://api-docs.igdb.com/#cover

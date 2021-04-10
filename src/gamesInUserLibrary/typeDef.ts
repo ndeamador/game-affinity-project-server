@@ -1,5 +1,6 @@
 import { Field, ID, Int, ObjectType } from 'type-graphql';
 import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Rating } from '../types';
 import User from '../users/typeDef';
 
 @ObjectType()
@@ -24,26 +25,11 @@ class GameInUserLibrary extends BaseEntity {
   igdb_game_id: number;
 
 
-
-  // @Column({ type: 'smallint', nullable: true })
-  // @Field({ nullable: true })
-  // rating: number;
-
+  // In a larger scale, real world application, rating would ideally be a separate entity to prevent null cells.
   // @Column({ nullable: true })
-  // @Field({ nullable: true })
-  // review: string;
-
-  // @Column({ nullable: true })
-  // @Field({ nullable: true })
-  // in_collection: boolean;
-
-  // @Column({ nullable: true })
-  // @Field({ nullable: true })
-  // played: boolean;
-
-  // @Column({ nullable: true })
-  // @Field({ nullable: true })
-  // wishlist: boolean;
+  @Column({ nullable: true })
+  @Field(_type => Number, { nullable: true })
+  rating: Rating;
 
   @UpdateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -98,7 +98,10 @@ export class GameService {
         platforms.platform_family,
         platforms.category,
         genres.id,
-        genres.name;
+        genres.name,
+        involved_companies.id,
+        involved_companies.company.name,
+        involved_companies.developer;
       `;
     if (name) {
       requestBody += `
@@ -136,8 +139,8 @@ export class GameService {
 
 
 
-    console.log('GAMES: ', games.map(game => `${game.name} - ${game.total_rating_count}`));
-    console.log('FIRST GAME: ', games[0]);
+    console.log('\n\nGames received: ', games.length, games.map(game => `${game.name} - ${game.total_rating_count}`));
+    console.log('\n\nFIRST GAME: ', games[0]);
 
 
     const onlyRatedGames = games.filter(game => game.total_rating_count);
@@ -162,7 +165,7 @@ export class GameService {
 
     // limit response size to maxResults
     const slicedGames = requiredGames.slice(0, maxResults);
-    console.log('after slice size: ', slicedGames.length, slicedGames.map(game => `${game.name} - ${game.total_rating_count}`));
+    console.log('\n\nGames sent: ', slicedGames.length, slicedGames.map(game => `${game.name} - ${game.total_rating_count}`));
 
     return slicedGames;
   };

@@ -1,7 +1,7 @@
 import { Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware } from 'type-graphql';
 import { Service } from 'typedi';
 import GameInUserLibrary from './typeDef';
-import { Context, TypeORMDeleteResponse } from '../types';
+import { Context, Rating, TypeORMDeleteResponse } from '../types';
 import { isUserAuthenticated } from '../middleware/isUserAuthenticated';
 import User from '../users/typeDef';
 import { GameResolver } from '../games/resolver';
@@ -29,23 +29,32 @@ export class GameInUserLibraryResolver {
   @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
   async addGameToLibrary(
     @Ctx() { req }: Context,
-    @Arg('gameId', _type => Int) gameId: number
+    @Arg('gameId', _type => Int) gameId: number,
+    @Arg('rating', _type => Int, { nullable: true }) rating: Rating
   ) {
     console.log('Adding game to library...');
 
-    const { userId } = req.session;
-    const foundUser = await User.findOneOrFail({ where: { id: userId } });
+    try {
+      const { userId } = req.session;
+      const foundUser = await User.findOneOrFail({ where: { id: userId } });
 
-    const gameInLibrary = new GameInUserLibrary();
-    gameInLibrary.user = foundUser;
-    gameInLibrary.igdb_game_id = gameId;
+      const gameInLibrary = new GameInUserLibrary();
+      gameInLibrary.user = foundUser;
+      gameInLibrary.igdb_game_id = gameId;
+      if (rating) gameInLibrary.rating = rating;
+      // gameInLibrary.rating = rating;
 
-    // const savedGameInLibrary = await getConnection().manager.save(gameInLibrary);
-    const savedGameInLibrary = await gameInLibrary.save();
 
-    console.log('Game saved to library: ', savedGameInLibrary);
+      // const savedGameInLibrary = await getConnection().manager.save(gameInLibrary);
+      const savedGameInLibrary = await gameInLibrary.save();
 
-    return savedGameInLibrary;
+      console.log('Game saved to library: ', savedGameInLibrary);
+
+      return savedGameInLibrary;
+    }
+    catch (err) {
+      throw new Error(`Failed to add game to library: ${err}`);
+    }
   }
 
 
@@ -106,5 +115,32 @@ export class GameInUserLibraryResolver {
     const library = await this.gameService.findGamesInIGDB('', onlyIds, 30);
     console.log('library response (only names)', library.map(game => game.name));
     return library;
+  }
+
+
+
+  // ==================================
+  // Update rating
+  // ==================================
+  @Mutation(_returns => Boolean)
+  @UseMiddleware(isUserAuthenticated)
+  async updateRating(
+    @Ctx() { req }: Context,
+    @Arg('gameId', _type => Int) gameId: number,
+    @Arg('rating', _type => Int) rating: Rating,
+  ) {
+
+    console.log('Updating rating...');
+
+    try {
+      const { userId } = req.session;
+      const savedGameInLibrary = await GameInUserLibrary.update({ igdb_game_id: gameId, user: { id: userId } }, { rating: rating });
+
+      console.log(savedGameInLibrary);
+      return savedGameInLibrary.affected === 1 ? true : false;
+    }
+    catch (err) {
+      throw new Error(`Cannot update rating: ${err}`);
+    }
   }
 }
