@@ -18,6 +18,10 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { COOKIE_NAME } from './constants';
 
+// IGDB API
+import requestIGDBCredentialsOrRetry from './utils/fetchIGDBCredentials';
+import { IGDBCredentials } from './types';
+
 
 // We wrap our code in a main() function to be able to use async/await (used in TypeGraphQL's buildSchema)
 const main = async (): Promise<void> => {
@@ -34,7 +38,79 @@ const main = async (): Promise<void> => {
     })
   );
 
-  // Redis for sessions
+
+
+
+  // Fetch and refresh IGDB access-token
+
+  // let { access_token, expires_in } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
+  // console.log('RESPONSE: ', access_token, '||', expires_in / 1000 / 60);
+
+  // ---------------------------------------------------
+
+  // const refreshToken = (miliseconds: number) => {
+  //   setTimeout(async () => {
+  //     const { access_token: refreshedAccessToken, expires_in: refreshedExpiry } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
+
+  //     igdbAccessToken = refreshedAccessToken;
+  //     console.log('IGDB Token refreshed.', igdbAccessToken);
+  //     refreshToken(refreshedExpiry);
+  //   }, miliseconds - 60000); // refresh 60 seconds ahead of token expiry
+  // };
+
+  // Could be done with experimental timersPromises: https://nodejs.org/api/timers.html#timers_timerspromises_settimeout_delay_value_options
+  // const refreshToken = async () => {
+  //   try {
+  //     const { access_token: refreshedAccessToken, expires_in: refreshedExpiry } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
+
+  //     igdbAccessToken = refreshedAccessToken;
+  //     console.log('IGDB Token refreshed.', igdbAccessToken);
+  //     return refreshedExpiry;
+  //   } catch (err) { throw new Error(err); }
+  // };
+
+
+  // ---------------------------------------------------
+
+
+  // const refreshToken = async () => {
+  //   try {
+  //     const { access_token: refreshedToken, expires_in: refreshedExpiry } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
+  //     expires_in = refreshedExpiry;
+  //     access_token = refreshedToken;
+  //     console.log('IGDB Token refreshed.', access_token, expires_in / 1000 / 60);
+
+  //     return new Promise(resolve => setTimeout(() => {
+  //       resolve(refreshToken());
+  //     }, (expires_in - 60000) / 60 / 60));
+  //   } catch (err) { throw new Error(err); }
+  // };
+
+  //  refreshToken();
+
+  // ---------------------------------------------------
+  let access_token: string;
+  let expires_in: number;
+
+  const fetchAndRefreshIgdbToken = async () => {
+    try {
+      const { access_token: refreshedToken, expires_in: refreshedExpiry } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
+      expires_in = refreshedExpiry;
+      access_token = refreshedToken;
+      console.log('IGDB Token:', access_token, '|| Expires in', expires_in / 1000 / 60, 'minutes.');
+
+      return new Promise(resolve => setTimeout(() => {
+        resolve(fetchAndRefreshIgdbToken());
+      }, expires_in - 60000)); // refresh 10 minutes ahead of token expiry
+    } catch (err) { throw new Error(err); }
+  };
+
+  fetchAndRefreshIgdbToken();
+
+
+
+
+  // Initialize redis sessions server
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
 
@@ -58,6 +134,7 @@ const main = async (): Promise<void> => {
     })
   );
 
+  // Define Apollo GraphQL server
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [GameResolver, UserResolver, GameInUserLibraryResolver],
@@ -69,7 +146,8 @@ const main = async (): Promise<void> => {
     // Context is an object accessible by all resolvers.
     context: ({ req, res }) => ({
       req, // Express middleware-specific context field: https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields
-      res // Express middleware-specific context field: https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields
+      res, // Express middleware-specific context field: https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields
+      igdb_access_token: access_token,
     }),
     // mocks: true,
   });
@@ -79,7 +157,7 @@ const main = async (): Promise<void> => {
   apolloServer.applyMiddleware({
     app,
     // cors: { origin: 'http://localhost:3000' }
-    cors: { origin: false }
+    cors: { origin: false } // We use the actual cors package above instead of this built in Apollo implementation.
   });
 
 

@@ -4,7 +4,8 @@ import { Session } from 'express-session';
 export interface Context {
   req: Request & { session: CustomSession }; // & joins two types
   // req: Request;
-  res: Response
+  res: Response,
+  igdb_access_token: string,
 }
 
 export interface CustomSession extends Session {
@@ -12,3 +13,9 @@ export interface CustomSession extends Session {
 }
 
 export type Rating = 0 | 1 | 2 | 3;
+
+export interface IGDBCredentials {
+  access_token: string,
+  expires_in: number,
+  token_type: string
+}

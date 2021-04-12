@@ -1,7 +1,8 @@
-import { Arg, Int, Query, Resolver } from 'type-graphql';
+import { Arg, Ctx, Int, Query, Resolver } from 'type-graphql';
 import Game from '../games/typeDef';
 import { GameService } from './service';
 import { Service } from 'typedi';
+import { Context } from '../types';
 
 
 // The @Resolver() decorator makes this class behave like a controller from classic REST frameworks
@@ -21,20 +22,21 @@ export class GameResolver {
   async findGames(
     @Arg('name', { nullable: true }) name: string,
     @Arg('id', () => [Int], { nullable: true }) id: number[],
-    @Arg('maxResults', () => Int, { nullable: true }) maxResults: number
+    @Arg('maxResults', () => Int, { nullable: true }) maxResults: number,
+    @Ctx() { igdb_access_token }: Context,
   ): Promise<Game[]> {
     console.log('======================================================');
-    console.log('Finding games...\n------------------------------------------------------');
+    console.log('Finding games...');
 
     if (!name && !id) {
       throw new Error('An argument is required.');
     }
-    else if (name) {
-      console.log(`Looking for games containing "${name}"...`);
-    }
-    else if (id) {
-      console.log(`Searching game with id "${id}"...`);
-    }
-    return await this.gameService.findGamesInIGDB(name, id, maxResults);
+    // else if (name) {
+    //   console.log(`Looking for games containing "${name}"...`);
+    // }
+    // else if (id) {
+    //   console.log(`Searching game with id "${id}"...`);
+    // }
+    return await this.gameService.findGamesInIGDB(igdb_access_token, name, id, maxResults);
   }
 }
