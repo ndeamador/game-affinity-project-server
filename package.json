@@ -10,7 +10,8 @@
     "tsc": "tsc",
     "watch": "tsc -w",
     "build": "rimraf ./build && tsc",
-    "lint": "eslint --ext .ts"
+    "lint": "eslint --ext .ts",
+    "start:test": "cross-env NODE_ENV=test node build/index.js"
   },
   "author": "Nicolas de Amador",
   "license": "ISC",

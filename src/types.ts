@@ -19,3 +19,10 @@ export interface IGDBCredentials {
   expires_in: number,
   token_type: string
 }
+
+
+export interface IGDBGameQueryError {
+  title: string,
+  status: number,
+  cause: string
+}

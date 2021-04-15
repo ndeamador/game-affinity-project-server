@@ -12,7 +12,7 @@ class GameInUserLibrary extends BaseEntity {
   id!: number;
 
   @Field(_type => User)
-  @ManyToOne(() => User, user => user.gamesInLibrary)
+  @ManyToOne(() => User, user => user.gamesInLibrary, { onDelete: 'CASCADE' })
   user!: User;
 
   // For now we are not going to store games in our database, so we remove the connection to the Game entity.

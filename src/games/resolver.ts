@@ -26,9 +26,11 @@ export class GameResolver {
     @Ctx() { igdb_access_token }: Context,
   ): Promise<Game[]> {
     console.log('======================================================');
-    console.log('Finding games...');
+    console.log(`Finding games... name: ${name}, id: ${id}, maxResults: ${maxResults}`);
 
-    if (!name && !id) {
+    console.log(`${id}`, typeof id, id ? true : false, id.length);
+
+    if (!name && !id || id.length === 0) {
       throw new Error('An argument is required.');
     }
     // else if (name) {

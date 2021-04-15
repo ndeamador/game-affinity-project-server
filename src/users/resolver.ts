@@ -1,12 +1,10 @@
-import { Arg, Query, Resolver, Mutation, Ctx } from 'type-graphql';
+import { Arg, Query, Resolver, Mutation, Ctx, Int } from 'type-graphql';
 import bcrypt from 'bcrypt';
 import User from './typeDef';
 import { Service } from 'typedi';
 import { UserLoginDetails } from './registerInput';
 import { Context } from '../types';
 import { COOKIE_NAME } from '../constants';
-import GameInUserLibrary from '../gamesInUserLibrary/typeDef';
-import { getRepository } from 'typeorm';
 
 @Service() // Seems required even when not using a service in a different file when using "Container" in the creation of the Apollo Server.
 @Resolver(_of => User)
@@ -88,7 +86,7 @@ export class UserResolver {
     }
     console.log('In session');
 
-    const currentUser = await User.findOne({where: { id: req.session.userId },  relations: ['gamesInLibrary']});
+    const currentUser = await User.findOne({ where: { id: req.session.userId }, relations: ['gamesInLibrary'] });
 
     // const libraryRepository = getRepository(GameInUserLibrary);
     // const gamesPopulatedWithUser = await libraryRepository.find({ relations: ['user'] });
@@ -125,5 +123,29 @@ export class UserResolver {
         res_redis(true);
       });
     });
+  }
+
+
+  // ----------------------------------
+  // DELETE USER FROM DATABASE
+  // ----------------------------------
+  @Mutation(_returns => Boolean)
+  async deleteUser(
+    @Arg('userId', _type => Int, { nullable: true }) userId: number,
+    @Arg('email', _type => String, { nullable: true }) email: string
+  ) {
+    console.log(`Deleting user...\n------------------------------------------------`);
+
+    try {
+      if (!userId && !email) throw new Error(`You must provide the user's id or email`);
+
+      const response = await User.delete(userId ? { id: userId } : { email: email });
+      console.log('response: ', response);
+
+      return response.affected === 0 ? false : true;
+    }
+    catch (err) {
+      throw new Error(`Failed to delete user: ${err}`);
+    }
   }
 }

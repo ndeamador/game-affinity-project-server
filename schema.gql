@@ -47,6 +47,7 @@ type InvolvedCompany {
 
 type Mutation {
   addGameToLibrary(gameId: Int!, rating: Int): GameInUserLibrary!
+  deleteUser(email: String, userId: Int): Boolean!
   login(loginDetails: UserLoginDetails!): User!
   logout: Boolean!
   registerNewUser(loginDetails: UserLoginDetails!): User!

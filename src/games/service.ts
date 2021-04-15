@@ -1,6 +1,7 @@
 import { Service } from 'typedi';
 import Game from './typeDef';
 import fetch from 'node-fetch';
+import { IGDBGameQueryError, IGDBGameQueryErrorResponse } from '../types';
 
 interface IGDBCredentials {
   access_token: string,
@@ -42,9 +43,12 @@ export class GameService {
     console.log('Finding games in IGDB...\n------------------------------------------------------');
     console.log(`Arguments: name-> ${name}, id-> ${id}, maxResults -> ${maxResults}`);
 
-    if (maxResults < 1) return [];
+    // This is already checked by the resolver:
+    // if (maxResults < 1) return [];
+    // if (!name && !id || id.length === 0) {
+    //   throw new Error('An argument is required.');
+    // }
 
-    // const { access_token } = await this.requestIGDBCredentials();
 
     // Note that 'cover', 'genres', 'platforms', etc. are a different entities with their own endpoint, but we can use IGDB expander feature to query, forinstance, cover.url instead of having to query two different endpoints
     // https://api-docs.igdb.com/#expander
@@ -77,7 +81,6 @@ export class GameService {
       `;
     }
 
-
     const response = await fetch('https://api.igdb.com/v4/games', {
       method: 'POST',
       body: requestBody,
@@ -89,7 +92,11 @@ export class GameService {
 
 
     if (!response.ok) {
-      throw new Error('Unable to retrieve games from IGDB.');
+      const responseError = await response.json() as IGDBGameQueryError[];
+      console.log(`Error retrieving games from IGDB:`);
+      console.log(responseError);
+
+      throw new Error(`Unable to retrieve games from IGDB.`);
     }
 
     const games = await response.json() as Game[];

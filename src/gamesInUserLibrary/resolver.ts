@@ -1,13 +1,11 @@
 import { Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware } from 'type-graphql';
 import { Service } from 'typedi';
 import GameInUserLibrary from './typeDef';
-import { Context, Rating, TypeORMDeleteResponse } from '../types';
+import { Context, Rating } from '../types';
 import { isUserAuthenticated } from '../middleware/isUserAuthenticated';
 import User from '../users/typeDef';
-import { GameResolver } from '../games/resolver';
 import { GameService } from '../games/service';
 import Game from '../games/typeDef';
-import { DeleteResult, getConnection, getManager } from 'typeorm';
 
 
 @Service()

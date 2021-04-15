@@ -32,7 +32,7 @@ class User extends BaseEntity {
   createdAt: Date;
 
   @Field(_type => [GameInUserLibrary])
-  @OneToMany(() => GameInUserLibrary, gameInUserLibrary => gameInUserLibrary.user) //gameInUserLibrary => gameInUserLibrary.user returns the name of the inverse side of the relation.
+  @OneToMany(() => GameInUserLibrary, gameInUserLibrary => gameInUserLibrary.user, { onDelete: 'CASCADE' }) //gameInUserLibrary => gameInUserLibrary.user returns the name of the inverse side of the relation.
   gamesInLibrary!: GameInUserLibrary[];
 
 }
