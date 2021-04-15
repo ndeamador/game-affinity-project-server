@@ -22,6 +22,9 @@ import { COOKIE_NAME } from './constants';
 import requestIGDBCredentialsOrRetry from './utils/fetchIGDBCredentials';
 import { IGDBCredentials } from './types';
 
+// TESTING
+import testingRouter from './controllers/testing';
+
 
 // We wrap our code in a main() function to be able to use async/await (used in TypeGraphQL's buildSchema)
 const main = async (): Promise<void> => {
@@ -134,10 +137,6 @@ const main = async (): Promise<void> => {
     })
   );
 
-  // if(process.env.NODE_ENV === 'test') {
-  //   app.use('/api/testing', )
-  // }
-
   // Define Apollo GraphQL server
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
@@ -155,6 +154,14 @@ const main = async (): Promise<void> => {
     }),
     // mocks: true,
   });
+
+
+  // Testing conditoinal endpoint
+  if (process.env.NODE_ENV === 'test') {
+    app.use('/api/testing', testingRouter);
+    console.log('Added testing endpoint');
+  }
+
 
   // Initialize Apollo Server (with applyMiddleWare for Express integration) https://www.apollographql.com/docs/apollo-server/integrations/middleware/#applying-middleware
   // This creates a GraphQL endpoint on Express, which we can access trhough localhost:PORT/graphql
