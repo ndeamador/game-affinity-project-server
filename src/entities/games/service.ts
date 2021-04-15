@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import Game from './typeDef';
 import fetch from 'node-fetch';
-import { IGDBGameQueryError, IGDBGameQueryErrorResponse } from '../types';
+import { IGDBGameQueryError } from '../../types';
 
 interface IGDBCredentials {
   access_token: string,
@@ -45,7 +45,7 @@ export class GameService {
 
     // This is already checked by the resolver:
     // if (maxResults < 1) return [];
-    // if (!name && !id || id.length === 0) {
+    // if (!name && (!id || id.length === 0)) {
     //   throw new Error('An argument is required.');
     // }
 

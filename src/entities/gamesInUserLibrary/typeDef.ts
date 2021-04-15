@@ -1,6 +1,6 @@
 import { Field, ID, Int, ObjectType } from 'type-graphql';
 import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { Rating } from '../types';
+import { Rating } from '../../types';
 import User from '../users/typeDef';
 
 @ObjectType()

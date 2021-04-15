@@ -1,6 +1,6 @@
 import { Length, IsEmail } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
-import { DoesEmailAlreadyExist } from '../utils/customClassValidators';
+import { DoesEmailAlreadyExist } from '../../utils/customClassValidators';
 
 @InputType() // Creates an input GraphQL type (We use @InputType instead of @Args)
 export class UserLoginDetails {

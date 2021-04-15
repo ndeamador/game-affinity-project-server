@@ -1,8 +1,8 @@
 import { Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware } from 'type-graphql';
 import { Service } from 'typedi';
 import GameInUserLibrary from './typeDef';
-import { Context, Rating } from '../types';
-import { isUserAuthenticated } from '../middleware/isUserAuthenticated';
+import { Context, Rating } from '../../types';
+import { isUserAuthenticated } from '../../middleware/isUserAuthenticated';
 import User from '../users/typeDef';
 import { GameService } from '../games/service';
 import Game from '../games/typeDef';

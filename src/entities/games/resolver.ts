@@ -1,8 +1,8 @@
 import { Arg, Ctx, Int, Query, Resolver } from 'type-graphql';
-import Game from '../games/typeDef';
+import Game from './typeDef';
 import { GameService } from './service';
 import { Service } from 'typedi';
-import { Context } from '../types';
+import { Context } from '../../types';
 
 
 // The @Resolver() decorator makes this class behave like a controller from classic REST frameworks
@@ -26,11 +26,9 @@ export class GameResolver {
     @Ctx() { igdb_access_token }: Context,
   ): Promise<Game[]> {
     console.log('======================================================');
-    console.log(`Finding games... name: ${name}, id: ${id}, maxResults: ${maxResults}`);
+    console.log(`Finding games... (In Resolver: name: ${name}, id: ${id}, maxResults: ${maxResults})`);
 
-    console.log(`${id}`, typeof id, id ? true : false, id.length);
-
-    if (!name && !id || id.length === 0) {
+    if (!name && (!id || id.length === 0)) {
       throw new Error('An argument is required.');
     }
     // else if (name) {

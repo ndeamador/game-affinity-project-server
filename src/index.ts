@@ -8,9 +8,9 @@ import { Container } from 'typedi'; // required for TypeGraphQL's dependency inj
 import cors from 'cors'; // to allow client and server to run in different ports during development.
 
 // Resolvers
-import { GameResolver } from './games/resolver';
-import { UserResolver } from './users/resolver';
-import { GameInUserLibraryResolver } from './gamesInUserLibrary/resolver';
+import { GameResolver } from './entities/games/resolver';
+import { UserResolver } from './entities/users/resolver';
+import { GameInUserLibraryResolver } from './entities/gamesInUserLibrary/resolver';
 
 // For sessions
 import redis, { RedisClient } from 'redis';
@@ -133,6 +133,10 @@ const main = async (): Promise<void> => {
       resave: false, // False to prevent constant pinging to Redis
     })
   );
+
+  // if(process.env.NODE_ENV === 'test') {
+  //   app.use('/api/testing', )
+  // }
 
   // Define Apollo GraphQL server
   const apolloServer = new ApolloServer({

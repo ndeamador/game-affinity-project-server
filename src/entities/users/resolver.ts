@@ -3,8 +3,8 @@ import bcrypt from 'bcrypt';
 import User from './typeDef';
 import { Service } from 'typedi';
 import { UserLoginDetails } from './registerInput';
-import { Context } from '../types';
-import { COOKIE_NAME } from '../constants';
+import { Context } from '../../types';
+import { COOKIE_NAME } from '../../constants';
 
 @Service() // Seems required even when not using a service in a different file when using "Container" in the creation of the Apollo Server.
 @Resolver(_of => User)

@@ -19,7 +19,7 @@ const connectionOptions: ConnectionOptions = {
   database: NODE_ENV === 'production' ? DB_PROD_DATABASE : DB_DEV_DATABASE,
   synchronize: NODE_ENV === 'production' ? false : true, // automatically updates the db tables/generates db schemas when running the application. Shouldn't be used in production.
   logging: false,
-  entities: ['build/**/typeDef.js'],
+  entities: ['build/entities/**/typeDef.js'],
   // migrations: ['build/database/migrations/*.js']
 };
 
