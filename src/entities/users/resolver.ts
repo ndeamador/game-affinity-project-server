@@ -9,10 +9,6 @@ import { COOKIE_NAME } from '../../constants';
 @Service() // Seems required even when not using a service in a different file when using "Container" in the creation of the Apollo Server.
 @Resolver(_of => User)
 export class UserResolver {
-  @Query(() => String)
-  userHello() {
-    return 'hi from UserResolver';
-  }
 
   // ----------------------------------
   // REGISTER USER
@@ -26,20 +22,32 @@ export class UserResolver {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const newUser = await User.create({
-      email,
-      password: hashedPassword
-    })
-      .save()
-      .catch(err => { throw new Error(err); });
+    try {
+      const newUser = await User.create({
+        email,
+        password: hashedPassword
+      }).save();
 
-    console.log("NEW USER: ", newUser);
+      // This command sets a cookie for the user in the browswer.
+      // We add this here if we want to log the user in automatically after registration (create a session)
+      req.session.userId = newUser.id;
+      return newUser;
+    }
+    catch (err) {
+      throw new Error(err);
+    }
+    // const newUser = await User.create({
+    //   email,
+    //   password: hashedPassword
+    // })
+    //   .save()
+    //   .catch(err => { throw new Error(err); });
 
-    // This command sets a cookie for the user in the browswer.
-    // We add this here if we want to log the user in automatically after registration (create a session)
-    req.session.userId = newUser.id;
+    // // This command sets a cookie for the user in the browswer.
+    // // We add this here if we want to log the user in automatically after registration (create a session)
+    // req.session.userId = newUser.id;
 
-    return newUser;
+    // return newUser;
   }
 
 
@@ -54,7 +62,6 @@ export class UserResolver {
     console.log('Logging in...');
 
     const user = await User.findOne({ where: { email: email.toLowerCase() } });
-
     if (!user) {
       throw new Error('User not found.');
     }
@@ -86,17 +93,21 @@ export class UserResolver {
     }
     console.log('In session');
 
-    const currentUser = await User.findOne({ where: { id: req.session.userId }, relations: ['gamesInLibrary'] });
+    try {
+      const currentUser = await User.findOne({ where: { id: req.session.userId }, relations: ['gamesInLibrary'] });
 
-    // const libraryRepository = getRepository(GameInUserLibrary);
-    // const gamesPopulatedWithUser = await libraryRepository.find({ relations: ['user'] });
-    // console.log('gamesPopulatedWithUser ===========================\n ', gamesPopulatedWithUser);
+      // const libraryRepository = getRepository(GameInUserLibrary);
+      // const gamesPopulatedWithUser = await libraryRepository.find({ relations: ['user'] });
+      // console.log('gamesPopulatedWithUser ===========================\n ', gamesPopulatedWithUser);
 
-    // const userRepository = getRepository(User);
-    // const userPopulatedWithGames = await userRepository.find({ relations: ['gamesInLibrary'] });
-    // console.log('userswithgamesinside ===========================\n ', userPopulatedWithGames);
-
-    return currentUser;
+      // const userRepository = getRepository(User);
+      // const userPopulatedWithGames = await userRepository.find({ relations: ['gamesInLibrary'] });
+      // console.log('userswithgamesinside ===========================\n ', userPopulatedWithGames);
+      return currentUser;
+    }
+    catch (err) {
+      throw new Error(`Failed to populate user: ${err}`);
+    }
   }
 
   // ----------------------------------
@@ -135,17 +146,14 @@ export class UserResolver {
     @Arg('email', _type => String, { nullable: true }) email: string
   ) {
     console.log(`Deleting user...\n------------------------------------------------`);
+    if (!userId && !email) throw new Error(`You must provide the user's id or email`);
 
     try {
-      if (!userId && !email) throw new Error(`You must provide the user's id or email`);
-
       const response = await User.delete(userId ? { id: userId } : { email: email });
-      console.log('response: ', response);
-
       return response.affected === 0 ? false : true;
     }
     catch (err) {
-      throw new Error(`Failed to delete user: ${err}`);
+      throw new Error(err);
     }
   }
 }

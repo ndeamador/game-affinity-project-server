@@ -45,60 +45,11 @@ const main = async (): Promise<void> => {
 
 
   // Fetch and refresh IGDB access-token
-
-  // let { access_token, expires_in } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
-  // console.log('RESPONSE: ', access_token, '||', expires_in / 1000 / 60);
-
-  // ---------------------------------------------------
-
-  // const refreshToken = (miliseconds: number) => {
-  //   setTimeout(async () => {
-  //     const { access_token: refreshedAccessToken, expires_in: refreshedExpiry } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
-
-  //     igdbAccessToken = refreshedAccessToken;
-  //     console.log('IGDB Token refreshed.', igdbAccessToken);
-  //     refreshToken(refreshedExpiry);
-  //   }, miliseconds - 60000); // refresh 60 seconds ahead of token expiry
-  // };
-
-  // Could be done with experimental timersPromises: https://nodejs.org/api/timers.html#timers_timerspromises_settimeout_delay_value_options
-  // const refreshToken = async () => {
-  //   try {
-  //     const { access_token: refreshedAccessToken, expires_in: refreshedExpiry } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
-
-  //     igdbAccessToken = refreshedAccessToken;
-  //     console.log('IGDB Token refreshed.', igdbAccessToken);
-  //     return refreshedExpiry;
-  //   } catch (err) { throw new Error(err); }
-  // };
-
-
-  // ---------------------------------------------------
-
-
-  // const refreshToken = async () => {
-  //   try {
-  //     const { access_token: refreshedToken, expires_in: refreshedExpiry } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
-  //     expires_in = refreshedExpiry;
-  //     access_token = refreshedToken;
-  //     console.log('IGDB Token refreshed.', access_token, expires_in / 1000 / 60);
-
-  //     return new Promise(resolve => setTimeout(() => {
-  //       resolve(refreshToken());
-  //     }, (expires_in - 60000) / 60 / 60));
-  //   } catch (err) { throw new Error(err); }
-  // };
-
-  //  refreshToken();
-
-  // ---------------------------------------------------
   let access_token: string;
-  // let expires_in: number;
 
   const fetchAndRefreshIgdbToken = async () => {
     try {
       const { access_token: refreshedToken, expires_in } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
-      // expires_in = refreshedExpiry;
       access_token = refreshedToken;
       console.log('IGDB Token:', access_token, '|| Expires in', expires_in / 1000 / 60, 'minutes.');
 
