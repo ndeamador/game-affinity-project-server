@@ -20,7 +20,10 @@ const connectionOptions: ConnectionOptions = {
   synchronize: NODE_ENV === 'production' ? false : true, // automatically updates the db tables/generates db schemas when running the application. Shouldn't be used in production.
   logging: false,
   entities: ['build/entities/**/typeDef.js'],
-  // migrations: ['build/database/migrations/*.js']
+  migrations: ['build/database/migrations/*.js'],
+  cli: {
+    migrationsDir: 'src/database/migrations/'
+  }
 };
 
 // Create connection to our database with TypeORM
