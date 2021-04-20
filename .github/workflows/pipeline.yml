@@ -1,0 +1,28 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize] # Run the workflow when a pull request into the master branch is opened or updated.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x] # The Node version the project uses in production.
+
+    steps:
+      - uses: actions/checkout@v2 # Action to check-out the project source from git so that the workflow can access it.
+      - name: Use Node.js ${{ matrix.node-version }} # Set up Node.js to be able to utilize the commands that are specified in package.json
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci # https://docs.npmjs.com/cli/v7/commands/npm-ci
+      - name: lint
+        run: npm run eslint
+      - name: build
+        run: npm run build

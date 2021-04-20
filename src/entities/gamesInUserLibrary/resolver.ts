@@ -97,7 +97,7 @@ export class GameInUserLibraryResolver {
   @Query(_returns => [Game])
   // @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
   async getLibrary(
-    @Ctx() { req }: Context,
+    @Ctx() { req, igdb_access_token }: Context,
   ) {
     console.log('======================================================');
     console.log('Getting library...\n------------------------------------------------------');
@@ -105,12 +105,13 @@ export class GameInUserLibraryResolver {
     console.log('USER ID: ', userId);
 
     const libraryItems = await GameInUserLibrary.find({ where: { user: userId } });
-    const onlyIds = libraryItems.map(item => item.igdb_game_id);
+    console.log('libraryitems: ', libraryItems);
+    const onlyIds: number[] = libraryItems.map(item => item.igdb_game_id);
     console.log('onlyids:', onlyIds, typeof onlyIds, 'length: ', onlyIds.length);
 
     if (onlyIds.length === 0) return;
 
-    const library = await this.gameService.findGamesInIGDB('', onlyIds, 30);
+    const library = await this.gameService.findGamesInIGDB(igdb_access_token, '', onlyIds, 30);
     console.log('library response (only names)', library.map(game => game.name));
     return library;
   }

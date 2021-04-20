@@ -3,11 +3,6 @@ import Game from './typeDef';
 import fetch from 'node-fetch';
 import { IGDBGameQueryError } from '../../types';
 
-interface IGDBCredentials {
-  access_token: string,
-  expires_in: number,
-  token_type: string
-}
 
 @Service()
 export class GameService {
@@ -86,7 +81,7 @@ export class GameService {
       body: requestBody,
       headers: {
         'Authorization': `Bearer ${access_token}`,
-        'Client-ID': process.env.TWITCH_CLIENT_ID
+        'Client-ID': `${process.env.TWITCH_CLIENT_ID}`
       }
     });
 
