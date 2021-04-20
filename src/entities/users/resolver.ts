@@ -15,7 +15,9 @@ export class UserResolver {
   // ----------------------------------
   @Mutation(_returns => User)
   async registerNewUser(
-    @Arg('loginDetails') { email, password }: UserLoginDetails,
+    // @Arg('loginDetails') { email, password }: UserLoginDetails,
+    @Arg('email', _type => String, { nullable: false }) email: string,
+    @Arg('password', _type => String, { nullable: false }) password: string,
     @Ctx() { req }: Context
   ): Promise<User> {
     console.log('Registering new user...');
@@ -56,7 +58,9 @@ export class UserResolver {
   // ----------------------------------
   @Mutation(_returns => User)
   async login(
-    @Arg('loginDetails') { email, password }: UserLoginDetails,
+    // @Arg('loginDetails') { email, password }: UserLoginDetails,
+    @Arg('email', _type => String, { nullable: false }) email: string,
+    @Arg('password', _type => String, { nullable: false }) password: string,
     @Ctx() { req }: Context
   ): Promise<User> {
     console.log('Logging in...');
@@ -67,6 +71,8 @@ export class UserResolver {
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
+    console.log('EN LOGIN: ', email, password, validPassword);
+
     if (!validPassword) {
       throw new Error('Incorrect password');
     }

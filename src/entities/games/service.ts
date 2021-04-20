@@ -104,7 +104,7 @@ export class GameService {
 
 
     // console.log('\n\nGames received: ', games.length, games.map(game => `${game.name} - ${game.total_rating_count}`));
-    console.log('\n\nFIRST GAME: ', games[0]);
+    // console.log('\n\nFIRST GAME: ', games[0]);
 
 
     const onlyRatedGames = games.filter(game => game.total_rating_count);
