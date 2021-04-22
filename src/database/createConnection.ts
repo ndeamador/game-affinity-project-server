@@ -5,9 +5,10 @@ const {
   DB_PASSWORD,
   DB_PROD_DATABASE,
   DB_DEV_DATABASE,
+  DB_TEST_DATABASE,
   DB_PORT,
   DB_HOST,
-  NODE_ENV
+  NODE_ENV,
 } = process.env;
 
 const connectionOptions: ConnectionOptions = {
@@ -16,8 +17,9 @@ const connectionOptions: ConnectionOptions = {
   port: Number(DB_PORT),
   username: DB_USERNAME,
   password: DB_PASSWORD,
-  database: NODE_ENV === 'production' ? DB_PROD_DATABASE : DB_DEV_DATABASE,
+  database: NODE_ENV === 'production' ? DB_PROD_DATABASE : NODE_ENV === 'development' ? DB_DEV_DATABASE : DB_TEST_DATABASE,
   synchronize: NODE_ENV === 'production' ? false : true, // automatically updates the db tables/generates db schemas when running the application. Shouldn't be used in production.
+  dropSchema: NODE_ENV === 'test',
   logging: false,
   entities: ['build/entities/**/typeDef.js'],
   migrations: ['build/database/migrations/*.js'],
@@ -25,6 +27,8 @@ const connectionOptions: ConnectionOptions = {
     migrationsDir: 'src/database/migrations/'
   }
 };
+
+console.log(connectionOptions.database, '- sync:', connectionOptions.synchronize, '- drop:', connectionOptions.dropSchema);
 
 // Create connection to our database with TypeORM
 // Connection settings are in "ormconfig.js"

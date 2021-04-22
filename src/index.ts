@@ -2,15 +2,15 @@ import 'reflect-metadata'; // Required for TypeGraphQL and TypeORM
 import 'dotenv/config';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { buildSchema } from 'type-graphql';
+// import { buildSchema } from 'type-graphql';
 import connectToDatabase from './database/createConnection';
-import { Container } from 'typedi'; // required for TypeGraphQL's dependency injection (Services won't be injected in resolvers without it)
+// import { Container } from 'typedi'; // required for TypeGraphQL's dependency injection (Services won't be injected in resolvers without it)
 import cors from 'cors'; // to allow client and server to run in different ports during development.
 
 // Resolvers
-import { GameResolver } from './entities/games/resolver';
-import { UserResolver } from './entities/users/resolver';
-import { GameInUserLibraryResolver } from './entities/gamesInUserLibrary/resolver';
+// import { GameResolver } from './entities/games/resolver';
+// import { UserResolver } from './entities/users/resolver';
+// import { GameInUserLibraryResolver } from './entities/gamesInUserLibrary/resolver';
 
 // For sessions
 import redis/* , { RedisClient } */ from 'redis';
@@ -24,6 +24,7 @@ import { IGDBCredentials } from './types';
 
 // TESTING
 import testingRouter from './controllers/testing';
+import createApolloSchema from './utils/buildApolloSchema';
 
 
 // We wrap our code in a main() function to be able to use async/await (used in TypeGraphQL's buildSchema)
@@ -90,13 +91,14 @@ const main = async (): Promise<void> => {
 
   // Define Apollo GraphQL server
   const apolloServer = new ApolloServer({
-    schema: await buildSchema({
-      resolvers: [GameResolver, UserResolver, GameInUserLibraryResolver],
-      // validate: false, // validation using class-validator is enabled by default, we can disable it if we want to use a different method.
-      dateScalarMode: "timestamp", // Change date format from the default ISO to timestamps (for IGDB database fields)
-      container: Container,
-      emitSchemaFile: true // allows TypeGraphQL to generate a schema.gql file at build-time
-    }),
+    // schema: await buildSchema({
+    //   resolvers: [GameResolver, UserResolver, GameInUserLibraryResolver],
+    //   // validate: false, // validation using class-validator is enabled by default, we can disable it if we want to use a different method.
+    //   dateScalarMode: "timestamp", // Change date format from the default ISO to timestamps (for IGDB database fields)
+    //   container: Container,
+    //   emitSchemaFile: true // allows TypeGraphQL to generate a schema.gql file at build-time
+    // }),
+    schema: await createApolloSchema(),
     // Context is an object accessible by all resolvers.
     context: ({ req, res }) => ({
       req, // Express middleware-specific context field: https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields
