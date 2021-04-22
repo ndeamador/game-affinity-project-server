@@ -13,7 +13,7 @@ import { UserResolver } from './entities/users/resolver';
 import { GameInUserLibraryResolver } from './entities/gamesInUserLibrary/resolver';
 
 // For sessions
-import redis, { RedisClient } from 'redis';
+import redis/* , { RedisClient } */ from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { COOKIE_NAME } from './constants';
@@ -83,7 +83,7 @@ const main = async (): Promise<void> => {
         sameSite: 'lax',
       },
       saveUninitialized: false, // Prevents that empty sessions are created.
-      secret: process.env.SESSION_SECRET,
+      secret: `${process.env.SESSION_SECRET}`,
       resave: false, // False to prevent constant pinging to Redis
     })
   );

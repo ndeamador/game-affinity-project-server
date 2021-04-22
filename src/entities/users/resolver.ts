@@ -2,7 +2,6 @@ import { Arg, Query, Resolver, Mutation, Ctx, Int } from 'type-graphql';
 import bcrypt from 'bcrypt';
 import User from './typeDef';
 import { Service } from 'typedi';
-import { UserLoginDetails } from './registerInput';
 import { Context } from '../../types';
 import { COOKIE_NAME } from '../../constants';
 
@@ -15,7 +14,8 @@ export class UserResolver {
   // ----------------------------------
   @Mutation(_returns => User)
   async registerNewUser(
-    @Arg('loginDetails') { email, password }: UserLoginDetails,
+    @Arg('email', _type => String, { nullable: false }) email: string,
+    @Arg('password', _type => String, { nullable: false }) password: string,
     @Ctx() { req }: Context
   ): Promise<User> {
     console.log('Registering new user...');
@@ -56,7 +56,8 @@ export class UserResolver {
   // ----------------------------------
   @Mutation(_returns => User)
   async login(
-    @Arg('loginDetails') { email, password }: UserLoginDetails,
+    @Arg('email', _type => String, { nullable: false }) email: string,
+    @Arg('password', _type => String, { nullable: false }) password: string,
     @Ctx() { req }: Context
   ): Promise<User> {
     console.log('Logging in...');

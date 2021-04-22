@@ -3,11 +3,6 @@ import Game from './typeDef';
 import fetch from 'node-fetch';
 import { IGDBGameQueryError } from '../../types';
 
-interface IGDBCredentials {
-  access_token: string,
-  expires_in: number,
-  token_type: string
-}
 
 @Service()
 export class GameService {
@@ -86,7 +81,7 @@ export class GameService {
       body: requestBody,
       headers: {
         'Authorization': `Bearer ${access_token}`,
-        'Client-ID': process.env.TWITCH_CLIENT_ID
+        'Client-ID': `${process.env.TWITCH_CLIENT_ID}`
       }
     });
 
@@ -109,7 +104,7 @@ export class GameService {
 
 
     // console.log('\n\nGames received: ', games.length, games.map(game => `${game.name} - ${game.total_rating_count}`));
-    console.log('\n\nFIRST GAME: ', games[0]);
+    // console.log('\n\nFIRST GAME: ', games[0]);
 
 
     const onlyRatedGames = games.filter(game => game.total_rating_count);
