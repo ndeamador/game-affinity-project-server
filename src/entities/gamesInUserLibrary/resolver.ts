@@ -14,12 +14,6 @@ export class GameInUserLibraryResolver {
   // Using service of Game in GameInUserLibrary, check if it's safe to do so.
   constructor(private readonly gameService: GameService) { }
 
-
-  @Query(_returns => String)
-  GameInUserLibraryHello() {
-    return 'Hello from UserGameResolver!';
-  }
-
   // ----------------------------------
   // ADD GAME TO LIBRARY
   // ----------------------------------
@@ -46,7 +40,7 @@ export class GameInUserLibraryResolver {
       // const savedGameInLibrary = await getConnection().manager.save(gameInLibrary);
       const savedGameInLibrary = await gameInLibrary.save();
 
-      console.log('Game saved to library: ', savedGameInLibrary);
+      // console.log('Game saved to library: ', savedGameInLibrary);
 
       return savedGameInLibrary;
     }
@@ -69,7 +63,7 @@ export class GameInUserLibraryResolver {
     const { userId } = req.session;
 
     const response = await GameInUserLibrary.delete({ igdb_game_id: igdb_game_id, user: { id: userId } });
-    console.log('response: ', response);
+    // console.log('response: ', response);
 
     return response.affected === 0 ? false : true;
   }
@@ -135,7 +129,7 @@ export class GameInUserLibraryResolver {
       const { userId } = req.session;
       const savedGameInLibrary = await GameInUserLibrary.update({ igdb_game_id: gameId, user: { id: userId } }, { rating: rating });
 
-      console.log(savedGameInLibrary);
+      // console.log(savedGameInLibrary);
       return savedGameInLibrary.affected === 1 ? true : false;
     }
     catch (err) {

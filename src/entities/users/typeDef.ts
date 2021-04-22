@@ -1,3 +1,4 @@
+import { IsEmail, Length } from 'class-validator';
 import { Field, ID, ObjectType } from "type-graphql";
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
 import GameInUserLibrary from '../gamesInUserLibrary/typeDef';
@@ -19,10 +20,12 @@ class User extends BaseEntity {
 
   @Field()
   @Column({ unique: true })
+  @IsEmail()
   email!: string;
 
   // We don't want to expose the password to GraphQL, so we don't add the @Field decorator
   @Column()
+  @Length(8, 64)
   password!: string;
 
   @CreateDateColumn({ name: 'updated_at' })
