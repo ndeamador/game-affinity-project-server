@@ -19,7 +19,7 @@ export { server, query, mutate };
 const setupTestEnvironment = async () => {
   const access_token = await requestIGDBCredentials();
 
-  await connectToDatabase();
+  await connectToDatabase({ attempts: 1 });
   const schema = await buildApolloSchema();
 
   if (schema) {

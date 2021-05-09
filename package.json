@@ -2,7 +2,7 @@
   "name": "game-affinity-project-server",
   "version": "0.0.0",
   "description": "",
-  "main": "src/index.ts",
+  "main": "build/index.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
     "start": "cross-env NODE_ENV=production node build/index.js",

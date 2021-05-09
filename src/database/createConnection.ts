@@ -1,25 +1,28 @@
 import { createConnection, ConnectionOptions } from 'typeorm';
 
 const {
-  DB_USERNAME,
-  DB_PASSWORD,
-  DB_PROD_DATABASE,
-  DB_DEV_DATABASE,
-  DB_TEST_DATABASE,
-  DB_PORT,
-  DB_HOST,
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  POSTGRES_DB,
+  POSTGRES_DEV_DB,
+  POSTGRES_TEST_DB,
+  POSTGRES_PORT,
+  POSTGRES_HOST_DEV,
+  POSTGRES_HOST_PROD,
   NODE_ENV,
 } = process.env;
 
 const connectionOptions: ConnectionOptions = {
   type: 'postgres',
-  host: DB_HOST,
-  port: Number(DB_PORT),
-  username: DB_USERNAME,
-  password: DB_PASSWORD,
-  database: NODE_ENV === 'production' ? DB_PROD_DATABASE : NODE_ENV === 'development' ? DB_DEV_DATABASE : DB_TEST_DATABASE,
-  synchronize: NODE_ENV === 'production' ? false : true, // automatically updates the db tables/generates db schemas when running the application. Shouldn't be used in production.
+  host: NODE_ENV === 'production' ? POSTGRES_HOST_PROD : POSTGRES_HOST_DEV,
+  port: Number(POSTGRES_PORT),
+  username: POSTGRES_USER,
+  password: POSTGRES_PASSWORD,
+  database: NODE_ENV === 'production' ? POSTGRES_DB : NODE_ENV === 'development' ? POSTGRES_DEV_DB : POSTGRES_TEST_DB,
+  // synchronize: NODE_ENV === 'production' ? false : true, // automatically updates the db tables/generates db schemas when running the application. Shouldn't be used in production.
+  synchronize: true, // DELETE THIS LINE ONCE MIGRATIONS ARE SET UP IN PROD
   dropSchema: NODE_ENV === 'test',
+  // url: NODE_ENV === 'production' ? POSTGRES_URL : `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${NODE_ENV === 'development' ? POSTGRES_DEV_DB : POSTGRES_TEST_DB}`,
   logging: false,
   entities: ['build/entities/**/typeDef.js'],
   migrations: ['build/database/migrations/*.js'],
@@ -28,16 +31,25 @@ const connectionOptions: ConnectionOptions = {
   }
 };
 
-console.log(connectionOptions.database, '- sync:', connectionOptions.synchronize, '- drop:', connectionOptions.dropSchema);
-
 // Create connection to our database with TypeORM
 // Connection settings are in "ormconfig.js"
-const connectToDatabase = async (): Promise<void> => {
-  try {
-    await createConnection(connectionOptions);
-    console.log('Database successfully initialized');
-  } catch (error) {
-    console.log(`Database failed to connect: ${error.message}`);
+const connectToDatabase = async ({ attempts = 1 }): Promise<void> => {
+  while (attempts) {
+    console.log(`Connecting to database (${attempts} attempts left)...`);
+    try {
+      await createConnection(connectionOptions);
+      console.log('Database successfully initialized');
+      break; // Leave the while loop to prevent reconnections if the connection is successful.
+    } catch (error) {
+      attempts -= 1;
+      if (attempts > 0) {
+        console.log(`Failed to connect to database: ${error.message}`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      else if (attempts === 0) {
+        throw new Error(`Unable to connect to database: ${error.message}`);
+      }
+    }
   }
 };
 
