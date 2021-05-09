@@ -1,0 +1,35 @@
+version: '3.8'
+
+# .env is loaded by default.
+
+services:
+  backend:
+    image: gap-backend # I use image despite building the image below to specify the name of the built image.
+    container_name: gap-backend
+    build: .
+    command: npm start
+    ports:
+      - '4000:4000'
+    depends_on:
+      - database
+      - redis
+
+  database:
+    image: postgres
+    container_name: gap-postgres
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    restart: unless-stopped #  keep the container running unless it’s stopped. With "always" the stopped container is started after reboot for example.
+    environment:
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=$POSTGRES_DB
+    ports:
+      - $POSTGRES_PORT:$POSTGRES_PORT
+
+  redis:
+    image: redis
+    container_name: gap-redis
+    # command: redis-server --requirepass $REDIS_PASSWORD # Just a workaround to add password to redis.
+    ports:
+      - 6379:6379

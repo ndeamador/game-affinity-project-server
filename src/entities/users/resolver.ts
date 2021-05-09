@@ -88,6 +88,7 @@ export class UserResolver {
     @Ctx() { req }: Context
   ) {
     console.log('In me query');
+    console.log('test req:', req.session);
     if (!req.session.userId) {
       console.log('No session');
       return null;
@@ -96,6 +97,7 @@ export class UserResolver {
 
     try {
       const currentUser = await User.findOne({ where: { id: req.session.userId }, relations: ['gamesInLibrary'] });
+      console.log('currentUser', currentUser);
 
       // const libraryRepository = getRepository(GameInUserLibrary);
       // const gamesPopulatedWithUser = await libraryRepository.find({ relations: ['user'] });
