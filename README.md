@@ -1,7 +1,11 @@
 :construction::construction::construction::construction: Work in Progress :construction::construction::construction::construction:
 
+<br>
+
 
 [View client](https://github.com/ndeamador/game-affinity-project-client)
+
+<br>
 
 If running locally on a Windows system, you will need to run a Redis instance on a Docker container.
 The easiest way to do this is to install Docker and run the command:
@@ -9,7 +13,7 @@ The easiest way to do this is to install Docker and run the command:
 docker run -p 6379:6379 -d redis
 ```
 
-
+<br>
 
 ## NPM COMMANDS
 ### Start the program in production environment
@@ -23,6 +27,7 @@ npm start
 
 > Runs the compiled `.js` files in folder `/build`
 
+<br>
 
 ### Start the program in development environment
 ---
@@ -35,6 +40,7 @@ npm run dev
 
 > Runs the compiled `.js` files in folder `/build`
 
+<br>
 
 ### Start the program in test environment
 ---
@@ -47,6 +53,7 @@ npm run start:test
 
 > Runs the compiled `.js` files in folder `/build`
 
+<br>
 
 ### Compile TypeScript code
 ---
@@ -55,6 +62,7 @@ npm run tsc
 ```
 > Compiles files to folder `/build`
 
+<br>
 
 ### Enable hot reloading
 ---
@@ -63,9 +71,9 @@ npm run watch
 ```
 > Runs tsc on watch mode, automatically compiling the project when changes to code are detected.
 
-
 > Run in in a separate window alongside `npm run dev`. Could use `ts-node` instead, but it is slower.
 
+<br>
 
 ### Build
 ---
@@ -74,13 +82,14 @@ npm run build
 ```
 > Deletes the current `/build` folder and then compiles just like above.
 
+<br>
 
 ### Lint
 ---
 ```
 npm run lint
 ```
-
+<br>
 
 ### Run tests
 ---
@@ -89,7 +98,7 @@ npm test
 ```
 > Requires that the application is running on the test environment (`npm run start:test`).
 
-
+<br><br><br>
 
 ## ENVIRONMENTAL VARIABLES
 ```yaml
