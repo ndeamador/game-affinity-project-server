@@ -9,6 +9,8 @@ The easiest way to do this is to install Docker and run the command:
 docker run -p 6379:6379 -d redis
 ```
 
+
+
 ## NPM COMMANDS
 ### Start the program in production environment
 ---
@@ -34,7 +36,7 @@ npm run dev
 > Runs the compiled `.js` files in folder `/build`
 
 
-### Start the program in test ---
+### Start the program in test environment
 ---
 ```
 npm run start:test
@@ -61,6 +63,7 @@ npm run watch
 ```
 > Runs tsc on watch mode, automatically compiling the project when changes to code are detected.
 
+
 > Run in in a separate window alongside `npm run dev`. Could use `ts-node` instead, but it is slower.
 
 
@@ -85,7 +88,6 @@ npm run lint
 npm test
 ```
 > Requires that the application is running on the test environment (`npm run start:test`).
-
 
 
 
