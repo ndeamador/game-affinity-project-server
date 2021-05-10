@@ -21,7 +21,7 @@ npm start
 
 > Runs the compiled `.js` files in folder `/build`
 
-/
+
 ### Start the program in development environment
 ---
 ```
@@ -32,7 +32,8 @@ npm run dev
 > Requires a Redis store to be running.
 
 > Runs the compiled `.js` files in folder `/build`
-/
+
+
 ### Start the program in test ---
 ---
 ```
@@ -43,14 +44,16 @@ npm run start:test
 > Redis session is mocked in `/src/utils/setupTestEnvironment.ts`
 
 > Runs the compiled `.js` files in folder `/build`
-/
+
+
 ### Compile TypeScript code
 ---
 ```
 npm run tsc
 ```
 > Compiles files to folder `/build`
-/
+
+
 ### Enable hot reloading
 ---
 ```
@@ -59,20 +62,23 @@ npm run watch
 > Runs tsc on watch mode, automatically compiling the project when changes to code are detected.
 
 > Run in in a separate window alongside `npm run dev`. Could use `ts-node` instead, but it is slower.
-/
+
+
 ### Build
 ---
 ```
 npm run build
 ```
 > Deletes the current `/build` folder and then compiles just like above.
-/
+
+
 ### Lint
 ---
 ```
 npm run lint
 ```
-/
+
+
 ### Run tests
 ---
 ```
@@ -80,8 +86,8 @@ npm test
 ```
 > Requires that the application is running on the test environment (`npm run start:test`).
 
-/
-/
+
+
 
 ## ENVIRONMENTAL VARIABLES
 ```yaml
