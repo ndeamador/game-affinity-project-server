@@ -50,7 +50,7 @@ jobs:
       - name: Build, Push and Deploy to Heroku
         # if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') && success()}}
         id: heroku
-        uses: jctaveras/heroku-deploy@v1.0.0
+        uses: akhileshns/heroku-deploy@v3.12.12
         with:
           email: ${{ secrets.HEROKU_EMAIL }}
           api_key: ${{ secrets.HEROKU_API_KEY }}
@@ -58,3 +58,32 @@ jobs:
           # dockerfile_path: '.' # set the path to the folder where the Dockerfile is located
           # options: '' # Docker Build Options
           # formation: '' # Docker Dyno Formation. By default is web
+
+  Logs:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: console messages
+        run: |
+          echo 'condition: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip')}}'
+          echo 'title contains #skip:  ${{ contains(github.event.head_commit.message, '#skip')}}'
+          echo "head_commit: ${{github.event.head_commit.message}}"
+          echo "github.base_ref: ${{github.base_ref}}"
+          echo "github.head_ref: ${{github.head_ref}}"
+          echo "github.event_name: ${{github.event_name}}"
+          echo "title contains ${{contains(github.event.head_commit.message, 'contain_test')}}"
+          echo "title doesn't ${{contains(github.event.head_commit.message, 'nothing')}}"
+          echo "event url: ${{github.event.url}}"
+          echo "event id: ${{github.event.id}}"
+      - name: gihub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: commits
+        env:
+          COMMITS: ${{ toJson(github.event.commits) }}
+        run: echo "$COMMITS"
+      - name: commit messages
+        env:
+          COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
+        run: echo "$COMMIT_MESSAGES"
