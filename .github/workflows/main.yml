@@ -58,6 +58,7 @@ jobs:
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          usedocker: true
           # dockerfile_path: '.' # set the path to the folder where the Dockerfile is located
           # options: '' # Docker Build Options
           # formation: '' # Docker Dyno Formation. By default is web
