@@ -31,6 +31,8 @@ const connectionOptions: ConnectionOptions = {
   }
 };
 
+console.log(connectionOptions);
+
 // Create connection to our database with TypeORM
 // Connection settings are in "ormconfig.js"
 const connectToDatabase = async ({ attempts = 1 }): Promise<void> => {

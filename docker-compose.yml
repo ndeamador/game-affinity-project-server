@@ -4,9 +4,9 @@ version: '3.8'
 
 services:
   backend:
-    image: gap-backend # I use image despite building the image below to specify the name of the built image.
+    image: ndeamador/game-affinity-project-server
     container_name: gap-backend
-    build: .
+    # build: .
     command: npm start
     ports:
       - '4000:4000'
@@ -33,3 +33,12 @@ services:
     # command: redis-server --requirepass $REDIS_PASSWORD # Just a workaround to add password to redis.
     ports:
       - 6379:6379
+
+  # watchtower automates updating images of running containers: https://github.com/containrrr/watchtower
+  watchtower:
+    image: containrrr/watchtower
+    environment:
+      -  WATCHTOWER_POLL_INTERVAL=60 # Poll every 60 seconds
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    container_name: gap-watchtower
