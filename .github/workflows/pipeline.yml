@@ -31,7 +31,7 @@ jobs:
 
       # Deploy to Docker Hub
       - name: Login to DockerHub
-        if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') && success()}}
+        # if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') && success()}}
         uses: docker/login-action@v1
         with:
           logout: true
@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push to
-        if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') && success()}}
+        # if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') && success()}}
         uses: docker/build-push-action@v2
         with:
           push: true
@@ -47,7 +47,7 @@ jobs:
 
       # Deploy to Heroku
       - name: Build, Push and Deploy to Heroku
-        if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') && success()}}
+        # if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') && success()}}
         id: heroku
         uses: jctaveras/heroku-deploy@v1.0.0
         with:
