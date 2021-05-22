@@ -10,7 +10,7 @@ const buildApolloSchema = () => buildSchema({
   // validate: false, // validation using class-validator is enabled by default, we can disable it if we want to use a different method.
   dateScalarMode: "timestamp", // Change date format from the default ISO to timestamps (for IGDB database fields)
   container: Container,
-  emitSchemaFile: true // allows TypeGraphQL to generate a schema.gql file at build-time
+  emitSchemaFile: false // allows TypeGraphQL to generate a schema.gql file at build-time
 });
 
 export default buildApolloSchema;

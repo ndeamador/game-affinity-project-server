@@ -6,16 +6,22 @@ services:
   backend:
     image: ndeamador/game-affinity-project-server
     container_name: gap-backend
-    # build: .
+    build: .
     command: npm start
-    ports:
-      - '4000:4000'
+    expose:
+      - 4000
+    # ports:
+    #   - '4000:4000'
     depends_on:
       - database
       - redis
+    env_file:
+      - .env
+    # networks:
+    #   - gap-backend
 
   database:
-    image: postgres
+    image: postgres:13.3-alpine
     container_name: gap-postgres
     volumes:
       - ./pgdata:/var/lib/postgresql/data
@@ -24,21 +30,44 @@ services:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - POSTGRES_DB=$POSTGRES_DB
-    ports:
-      - $POSTGRES_PORT:$POSTGRES_PORT
+    # ports:
+    #   - $POSTGRES_PORT:$POSTGRES_PORT
+    expose:
+      - $POSTGRES_PORT
+    # networks:
+    #   - gap-backend
 
   redis:
-    image: redis
+    image: redis:6.2.3-alpine
     container_name: gap-redis
     # command: redis-server --requirepass $REDIS_PASSWORD # Just a workaround to add password to redis.
-    ports:
-      - 6379:6379
+    # ports:
+    #   - 6379:6379
+    expose: # Expose ports without publishing them to the host machine - they’ll only be accessible to linked services. Only the internal port can be specified.
+      - 6379
+    # networks:
+    #   - gap-backend
 
-  # watchtower automates updating images of running containers: https://github.com/containrrr/watchtower
-  watchtower:
-    image: containrrr/watchtower
-    environment:
-      -  WATCHTOWER_POLL_INTERVAL=60 # Poll every 60 seconds
+  proxy:
+    image: nginx:1.19.10-alpine
+    container_name: gap-nginx
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    container_name: gap-watchtower
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+      - 433:433
+    # networks:
+    #   - gap-backend
+
+    # watchtower automates updating images of running containers: https://github.com/containrrr/watchtower
+    watchtower:
+      image: containrrr/watchtower
+      environment:
+        -  WATCHTOWER_POLL_INTERVAL=60 # Poll every 60 seconds
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      container_name: gap-watchtower
+
+
+# networks:
+#   gap-backend:

@@ -129,5 +129,5 @@ CORS_ORIGIN=
 > Note that if you use different user/password for postgres in your local machine and in production, you will need to either add extra variables here and in `.env` and `src/database/createConnection.ts` or specify a different user and/or password when running a script through the command line. For instance:
 
 ```
-PG_PASSWORD=yourlocalpassword npm run start:test
+POSTGRES_PASSWORD=yourlocalpassword npm run start:test
 ```

@@ -19,8 +19,8 @@ const connectionOptions: ConnectionOptions = {
   username: POSTGRES_USER,
   password: POSTGRES_PASSWORD,
   database: NODE_ENV === 'production' ? POSTGRES_DB : NODE_ENV === 'development' ? POSTGRES_DEV_DB : POSTGRES_TEST_DB,
-  // synchronize: NODE_ENV === 'production' ? false : true, // automatically updates the db tables/generates db schemas when running the application. Shouldn't be used in production.
-  synchronize: true, // DELETE THIS LINE ONCE MIGRATIONS ARE SET UP IN PROD
+  synchronize: !(NODE_ENV === 'production'), // automatically updates the db tables/generates db schemas when running the application. Shouldn't be used in production.
+  migrationsRun: NODE_ENV === 'production',
   dropSchema: NODE_ENV === 'test',
   // url: NODE_ENV === 'production' ? POSTGRES_URL : `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${NODE_ENV === 'development' ? POSTGRES_DEV_DB : POSTGRES_TEST_DB}`,
   logging: false,
@@ -34,7 +34,6 @@ const connectionOptions: ConnectionOptions = {
 console.log(connectionOptions);
 
 // Create connection to our database with TypeORM
-// Connection settings are in "ormconfig.js"
 const connectToDatabase = async ({ attempts = 1 }): Promise<void> => {
   while (attempts) {
     console.log(`Connecting to database (${attempts} attempts left)...`);
@@ -46,7 +45,7 @@ const connectToDatabase = async ({ attempts = 1 }): Promise<void> => {
       attempts -= 1;
       if (attempts > 0) {
         console.log(`Failed to connect to database: ${error.message}`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, attempts > 5 ? 1000 : attempts > 10 ? 2000 : attempts > 20 ? 5000 : 10000));
       }
       else if (attempts === 0) {
         throw new Error(`Unable to connect to database: ${error.message}`);
