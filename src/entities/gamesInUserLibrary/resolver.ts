@@ -103,7 +103,7 @@ export class GameInUserLibraryResolver {
     const onlyIds: number[] = libraryItems.map(item => item.igdb_game_id);
     console.log('onlyids:', onlyIds, typeof onlyIds, 'length: ', onlyIds.length);
 
-    if (onlyIds.length === 0) return;
+    if (onlyIds.length === 0) return [];
 
     const library = await this.gameService.findGamesInIGDB(igdb_access_token, '', onlyIds, 30);
     console.log('library response (only names)', library.map(game => game.name));

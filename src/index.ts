@@ -4,6 +4,7 @@ import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import connectToDatabase from './database/createConnection';
 import cors from 'cors'; // to allow client and server to run in different ports during development.
+// import { getConnection } from 'typeorm';
 
 // Redis/sessions
 import redis/* , { RedisClient } */ from 'redis';
@@ -23,8 +24,10 @@ import createApolloSchema from './utils/buildApolloSchema';
 // We wrap our code in a main() function to be able to use async/await (used in TypeGraphQL's buildSchema)
 const main = async (): Promise<void> => {
 
-  await connectToDatabase({ attempts: 5 })
+  await connectToDatabase({ attempts: 10 })
     .catch(err => console.log(err));
+
+  // await getConnection().runMigrations(); // Only run migrations that have not been run yet.
 
   const app = express();
 
@@ -33,8 +36,8 @@ const main = async (): Promise<void> => {
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient(redisConfig); // This would take the connection parameters, but we leave the default values: https://redislabs.com/lp/node-js-redis/
 
-  // Tell express that we have a proxy in front of our app so that sessions work when using Nginx
-  // if (app.get('env') === 'production') app.set("proxy", 1);
+  // Tell express that we have a proxy in front of our app so that sessions work when using Nginx: http://expressjs.com/en/guide/behind-proxies.html#express-behind-proxies
+  if (app.get('env') === 'production') app.set("trust proxy", 1);
 
   app.use(
     cors({
@@ -78,10 +81,11 @@ const main = async (): Promise<void> => {
       return new Promise(resolve => setTimeout(() => {
         resolve(fetchAndRefreshIgdbToken());
       }, expires_in - 60000)); // refresh 10 minutes ahead of token expiry
-    } catch (err) { throw new Error(err); }
+    }
+    catch (err) { throw new Error(err); }
   };
 
-  fetchAndRefreshIgdbToken();
+  void fetchAndRefreshIgdbToken();
 
 
 
@@ -104,6 +108,11 @@ const main = async (): Promise<void> => {
     app.use('/api/testing', testingRouter);
     console.log('Added testing endpoint');
   }
+
+  app.use('/api/ping', express.Router().get('/', (_request, response) => {
+    response.status(200).send('pong');
+  }));
+
 
 
   // Initialize Apollo Server (with applyMiddleWare for Express integration) https://www.apollographql.com/docs/apollo-server/integrations/middleware/#applying-middleware

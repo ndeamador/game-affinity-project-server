@@ -113,9 +113,9 @@ POSTGRES_PASSWORD=
 POSTGRES_DB=
 POSTGRES_DEV_DB=
 POSTGRES_TEST_DB=
-POSTGRES_PORT=5432
-POSTGRES_HOST_DEV=
-POSTGRES_HOST_PROD=
+POSTGRES_PORT= # 5432
+POSTGRES_HOST_DEV= # localhost
+POSTGRES_HOST_PROD= # In my case, the name of the postgres service in docker-compose.
 
 # express-session secret to be used alongside connect-redis
 SESSION_SECRET=
@@ -129,5 +129,5 @@ CORS_ORIGIN=
 > Note that if you use different user/password for postgres in your local machine and in production, you will need to either add extra variables here and in `.env` and `src/database/createConnection.ts` or specify a different user and/or password when running a script through the command line. For instance:
 
 ```
-PG_PASSWORD=localpassword npm run start:test
+POSTGRES_PASSWORD=yourlocalpassword npm run start:test
 ```

@@ -1,0 +1,71 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize] # Run the workflow when a pull request into the master branch is opened or updated.
+
+jobs:
+  deployment_pipeline:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x] # The Node version the project uses in production.
+
+    steps:
+      - uses: actions/checkout@v2 # Action to check-out the project source from git so that the workflow can access it.
+      - name: Use Node.js ${{ matrix.node-version }} # Set up Node.js to be able to utilize the commands that are specified in package.json
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci # https://docs.npmjs.com/cli/v7/commands/npm-ci
+      - name: lint
+        run: npm run lint
+      # - name: build
+      #   run: npm run build
+      # - name: test
+      #   run: npm test
+
+
+      # Deploy to Docker Hub
+      - name: Login to DockerHub
+        if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#dockerhub-push') && success()}}
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push to Docker Hub
+        if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#dockerhub-push') && success()}}
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ndeamador/game-affinity-project-server:latest
+
+
+
+
+  Logs:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: console messages
+        run: |
+          echo "title doesn't ${{contains(github.event.head_commit.message, 'nothing')}}"
+          echo "event url: ${{github.event.url}}"
+          echo "event id: ${{github.event.id}}"
+      - name: gihub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: commits
+        env:
+          COMMITS: ${{ toJson(github.event.commits) }}
+        run: echo "$COMMITS"
+      - name: commit messages
+        env:
+          COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
+        run: echo "$COMMIT_MESSAGES"
