@@ -58,6 +58,7 @@ const main = async (): Promise<void> => {
         maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // How long in miliseconds until the cookie expires (10 years)
         httpOnly: true, // Prevents JS in the frontend from accessing the cookie.
         // secure: app.get('env') === 'production' ? true : false, // Cookie only works in https
+        // domain: app.get('env') === 'production' ? 'gap-server.nicodeamador.com' : undefined,
         sameSite: 'lax',
       },
       saveUninitialized: false, // Prevents that empty sessions are created.
@@ -76,7 +77,7 @@ const main = async (): Promise<void> => {
     try {
       const { access_token: refreshedToken, expires_in } = await requestIGDBCredentialsOrRetry() as IGDBCredentials;
       access_token = refreshedToken;
-      console.log('IGDB Token:', access_token, '|| Expires in', expires_in / 1000 / 60, 'minutes.');
+      console.log('IGDB Token fetched.|| Expires in', (expires_in / 1000 / 60).toFixed(1), 'minutes.');
 
       return new Promise(resolve => setTimeout(() => {
         resolve(fetchAndRefreshIgdbToken());
@@ -120,7 +121,7 @@ const main = async (): Promise<void> => {
   apolloServer.applyMiddleware({
     app,
     // cors: { origin: 'http://localhost:3000' }
-    cors: { origin: false } // We use the actual cors package above instead of this built in Apollo implementation.
+    cors: false // We use the actual cors package above instead of this built in Apollo implementation.
   });
 
 
