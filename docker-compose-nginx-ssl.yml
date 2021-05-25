@@ -1,0 +1,71 @@
+# In production, this file will be run directly in the VPS to set up our proxy and https certification.
+# https://github.com/nginx-proxy/nginx-proxy
+# https://francoisromain.medium.com/host-multiple-websites-with-https-inside-docker-containers-on-a-single-server-18467484ab95
+
+# 1. For Ubuntu, create "nginx-proxy" folder in /srv/www/
+# 2. Inside the "nginx-proxy" folder, create the following:
+#   +-- docker-compose.yml  (this file)
+#   +-- nginx.tmpl          (file)
+#   +-- conf.d    (folder)
+#   +-- vhost.d   (folder)
+#   +-- html      (folder)
+#   +-- certs     (folder)
+# 3. Contents of nginx.tmpl: https://github.com/nginx-proxy/nginx-proxy/blob/main/nginx.tmpl
+# 4. Get proxy/certificate containers started:
+# 5. Create network to be shared with our app containers (docker network create nginx-proxy)
+# 6. Run the docker-compose inside the "nginx-proxy" folder (docker-compose up -d)
+# 7. Run main app.
+
+
+version: '3'
+services:
+  nginx:
+    image: nginx
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    container_name: nginx
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /srv/www/nginx-proxy/conf.d:/etc/nginx/conf.d
+      - /srv/www/nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - /srv/www/nginx-proxy/html:/usr/share/nginx/html
+      - /srv/www/nginx-proxy/certs:/etc/nginx/certs:ro
+
+  nginx-gen:
+    image: jwilder/docker-gen
+    command: -notify-sighup nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+    container_name: nginx-gen
+    restart: unless-stopped
+    volumes:
+      - /srv/www/nginx-proxy/conf.d:/etc/nginx/conf.d
+      - /srv/www/nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - /srv/www/nginx-proxy/html:/usr/share/nginx/html
+      - /srv/www/nginx-proxy/certs:/etc/nginx/certs:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /srv/www/nginx-proxy/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
+
+  nginx-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-letsencrypt
+    restart: unless-stopped
+    volumes:
+      - /srv/www/nginx-proxy/conf.d:/etc/nginx/conf.d
+      - /srv/www/nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - /srv/www/nginx-proxy/html:/usr/share/nginx/html
+      - /srv/www/nginx-proxy/certs:/etc/nginx/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      NGINX_DOCKER_GEN_CONTAINER: "nginx-gen"
+      NGINX_PROXY_CONTAINER: "nginx"
+
+networks:
+  default:
+    external:
+      name: nginx-proxy
