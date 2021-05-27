@@ -13,7 +13,7 @@ services:
       - database
       - redis
     env_file:
-      - .env
+      - .env # If building locally, remember to use .env.production instead.
 
 
   database:

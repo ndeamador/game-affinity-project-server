@@ -56,8 +56,8 @@ const main = async (): Promise<void> => {
       }),
       cookie: { // Hover properties for descriptions.
         maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // How long in miliseconds until the cookie expires (10 years)
-        httpOnly: true, // Prevents JS in the frontend from accessing the cookie.
-        // secure: app.get('env') === 'production' ? true : false, // Cookie only works in https
+        httpOnly: app.get('env') === 'production', // Prevents JS in the frontend from accessing the cookie.
+        secure: app.get('env') === 'production', // Cookie only works in https
         // domain: app.get('env') === 'production' ? 'gap-server.nicodeamador.com' : undefined,
         sameSite: 'lax',
       },
