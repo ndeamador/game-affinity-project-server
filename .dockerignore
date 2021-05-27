@@ -3,5 +3,6 @@ npm-debug.log
 build
 pgdata
 .env
+.env.production
 ormconfig.yml
 docker-compose-nginx-ssl.yml

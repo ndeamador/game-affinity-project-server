@@ -10,7 +10,7 @@
 If running locally on a Windows system, you will need to run a Redis instance on a Docker container.
 The easiest way to do this is to install Docker and run the command:
 ```
-docker run -p 6379:6379 -d redis
+docker run --name redis -p 6379:6379 -d redis
 ```
 
 <br>
