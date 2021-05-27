@@ -15,7 +15,6 @@ services:
     env_file:
       - .env # If building locally, remember to use .env.production instead.
 
-
   database:
     image: postgres:13.3-alpine
     container_name: gap-postgres
@@ -28,7 +27,6 @@ services:
       - POSTGRES_DB=$POSTGRES_DB
     expose:
       - $POSTGRES_PORT
-
 
   redis:
     image: redis:6.2.3-alpine
