@@ -7,7 +7,6 @@ import User from '../users/typeDef';
 import { GameService } from '../games/service';
 import Game from '../games/typeDef';
 
-
 @Service()
 @Resolver(_of => GameInUserLibrary)
 export class GameInUserLibraryResolver {
@@ -24,15 +23,20 @@ export class GameInUserLibraryResolver {
     @Arg('gameId', _type => Int) gameId: number,
     @Arg('rating', _type => Int, { nullable: true }) rating: Rating
   ) {
-    console.log('Adding game to library...');
+    console.log('\nAdding game to library...\n------------------------------------------------');
 
     try {
       const { userId } = req.session;
+
       const foundUser = await User.findOneOrFail({ where: { id: userId } });
 
       const gameInLibrary = new GameInUserLibrary();
       gameInLibrary.user = foundUser;
       gameInLibrary.igdb_game_id = gameId;
+      // console.log('founduser: ', foundUser);
+      // console.log('gameInLibrary: ', gameInLibrary);
+
+
       if (rating) gameInLibrary.rating = rating;
       // gameInLibrary.rating = rating;
 
@@ -40,12 +44,46 @@ export class GameInUserLibraryResolver {
       // const savedGameInLibrary = await getConnection().manager.save(gameInLibrary);
       const savedGameInLibrary = await gameInLibrary.save();
 
-      // console.log('Game saved to library: ', savedGameInLibrary);
+      // console.log('Game saved to library: ', savedGameInLibrary.igdb_game_id);
+      console.log('Game saved to library: \n', savedGameInLibrary);
+
 
       return savedGameInLibrary;
     }
     catch (err) {
       throw new Error(`Failed to add game to library: ${err}`);
+    }
+  }
+
+
+  // ==================================
+  // Update rating
+  // ==================================
+  // @Mutation(_returns => Boolean) // For the version that does not return the updated object
+  @Mutation(_returns => GameInUserLibrary) // For the version that returns the updated object
+  @UseMiddleware(isUserAuthenticated)
+  async updateRating(
+    @Ctx() { req }: Context,
+    @Arg('gameId', _type => Int) gameId: number,
+    @Arg('rating', _type => Int, { nullable: true }) rating: Rating,
+  ) {
+
+    console.log('\nUpdating rating...\n------------------------------------------------');
+    // console.log('updating, game rating', gameId, rating);
+
+    try {
+      const { userId } = req.session;
+      const savedGameInLibrary = await GameInUserLibrary.update({ igdb_game_id: gameId, user: { id: userId } }, { rating: rating });
+      console.log('Update response: ', savedGameInLibrary);
+
+      const updatedGame = await GameInUserLibrary.findOne({ igdb_game_id: gameId, user: { id: userId } });
+      // console.log('UPDATED GAME: ', updatedGame);
+
+      return updatedGame;
+      // return savedGameInLibrary.affected === 1 ? true : false; // return only success/failure
+    }
+    catch (err) {
+      throw new Error(`Cannot update rating: ${err}`);
     }
   }
 
@@ -59,11 +97,15 @@ export class GameInUserLibraryResolver {
     @Ctx() { req }: Context,
     @Arg('igdb_game_id', _type => Int) igdb_game_id: number
   ) {
-    console.log(`Removing game from library...\n------------------------------------------------`);
+    console.log(`\nRemoving game from library...\n------------------------------------------------`);
     const { userId } = req.session;
 
     const response = await GameInUserLibrary.delete({ igdb_game_id: igdb_game_id, user: { id: userId } });
-    // console.log('response: ', response);
+
+    // // TEMP
+    // console.log('delete response: ', response); // TEMP
+    // const updatedGame = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId }});
+    // console.log('TRY GAME: ', updatedGame);
 
     return response.affected === 0 ? false : true;
   }
@@ -94,46 +136,19 @@ export class GameInUserLibraryResolver {
     @Ctx() { req, igdb_access_token }: Context,
   ) {
     console.log('======================================================');
-    console.log('Getting library...\n------------------------------------------------------');
+    console.log('\nGetting library...\n------------------------------------------------------');
     const { userId } = req.session;
     console.log('USER ID: ', userId);
 
     const libraryItems = await GameInUserLibrary.find({ where: { user: userId } });
-    console.log('libraryitems: ', libraryItems);
+    // console.log('libraryitems: ', libraryItems);
     const onlyIds: number[] = libraryItems.map(item => item.igdb_game_id);
-    console.log('onlyids:', onlyIds, typeof onlyIds, 'length: ', onlyIds.length);
+    // console.log('onlyids:', onlyIds, typeof onlyIds, 'length: ', onlyIds.length);
 
     if (onlyIds.length === 0) return [];
 
     const library = await this.gameService.findGamesInIGDB(igdb_access_token, '', onlyIds, 30);
-    console.log('library response (only names)', library.map(game => game.name));
+    // console.log('library response (only names)', library.map(game => game.name));
     return library;
-  }
-
-
-
-  // ==================================
-  // Update rating
-  // ==================================
-  @Mutation(_returns => Boolean)
-  @UseMiddleware(isUserAuthenticated)
-  async updateRating(
-    @Ctx() { req }: Context,
-    @Arg('gameId', _type => Int) gameId: number,
-    @Arg('rating', _type => Int) rating: Rating,
-  ) {
-
-    console.log('Updating rating...');
-
-    try {
-      const { userId } = req.session;
-      const savedGameInLibrary = await GameInUserLibrary.update({ igdb_game_id: gameId, user: { id: userId } }, { rating: rating });
-
-      // console.log(savedGameInLibrary);
-      return savedGameInLibrary.affected === 1 ? true : false;
-    }
-    catch (err) {
-      throw new Error(`Cannot update rating: ${err}`);
-    }
   }
 }
