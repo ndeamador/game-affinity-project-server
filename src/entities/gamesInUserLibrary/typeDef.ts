@@ -34,6 +34,14 @@ class GameInUserLibrary extends BaseEntity {
   @Field(_type => Number, { nullable: true })
   subrating: number;
 
+  // @Column({ nullable: true })
+  // @Field(_type => Number, { nullable: true })
+  // total_ratings: number;
+
+  // @Column({ nullable: true })
+  // @Field(_type => Number, { nullable: true })
+  // avg_rating: number;
+
   @CreateDateColumn()
   created_at: Date;
 

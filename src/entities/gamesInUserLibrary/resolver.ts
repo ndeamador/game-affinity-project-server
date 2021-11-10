@@ -1,4 +1,4 @@
-import { Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware } from 'type-graphql';
+import { Arg, Ctx, ID, Int, Mutation, Query, Resolver, UseMiddleware } from 'type-graphql';
 import { Service } from 'typedi';
 import GameInUserLibrary from './typeDef';
 import { Context, Rating } from '../../types';
@@ -23,7 +23,7 @@ export class GameInUserLibraryResolver {
     @Arg('gameId', _type => Int) gameId: number,
     @Arg('rating', _type => Int, { nullable: true }) rating: Rating
   ) {
-    console.log('\nAdding game to library...\n------------------------------------------------');
+    console.log(`\nAdding game to library (id: ${gameId} - rating: ${rating})...\n------------------------------------------------`);
 
     try {
       const { userId } = req.session;
@@ -64,26 +64,47 @@ export class GameInUserLibraryResolver {
   @UseMiddleware(isUserAuthenticated)
   async updateRating(
     @Ctx() { req }: Context,
-    @Arg('gameId', _type => Int) gameId: number,
+    @Arg('igdb_game_id', _type => Int) igdb_game_id: number,
     @Arg('rating', _type => Int, { nullable: true }) rating: Rating,
   ) {
 
-    console.log('\nUpdating rating...\n------------------------------------------------');
-    // console.log('updating, game rating', gameId, rating);
+    console.log(`\nUpdating rating (igdb_game_id: ${igdb_game_id})...\n------------------------------------------------`);
+    // console.log('updating, game rating', igdb_game_id, rating);
 
     try {
       const { userId } = req.session;
-      const savedGameInLibrary = await GameInUserLibrary.update({ igdb_game_id: gameId, user: { id: userId } }, { rating: rating });
-      console.log('Update response: ', savedGameInLibrary);
 
-      const updatedGame = await GameInUserLibrary.findOne({ igdb_game_id: gameId, user: { id: userId } });
-      // console.log('UPDATED GAME: ', updatedGame);
+      // const gameInLibrary = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId } });
+      // console.log('UPDATED GAME: ', gameInLibrary);
 
+      // // Temporary upsert workaround.
+      // if (!gameInLibrary) {
+
+      //   const foundUser = await User.findOneOrFail({ where: { id: userId } });
+
+      //   const gameInLibrary = new GameInUserLibrary();
+      //   console.log('is this async?', gameInLibrary);
+      //   gameInLibrary.user = foundUser;
+      //   gameInLibrary.igdb_game_id = igdb_game_id;
+      //   gameInLibrary.rating = rating;
+
+      //   const savedGameInLibrary = await gameInLibrary.save();
+      //   console.log('savedgame:', savedGameInLibrary);
+      //   return savedGameInLibrary;
+      // }
+
+      const updateResponse = await GameInUserLibrary.update({ igdb_game_id: igdb_game_id, user: { id: userId } }, { rating: rating });
+      console.log('Update response: ', updateResponse);
+      if (updateResponse.affected === 0) throw Error;
+      // if (savedGameInLibrary.affected === 0) throw Error;
+      const updatedGame = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId } });
+      console.log('updated game: ', updatedGame || 'fail');
       return updatedGame;
       // return savedGameInLibrary.affected === 1 ? true : false; // return only success/failure
     }
     catch (err) {
-      throw new Error(`Cannot update rating: ${err}`);
+      console.log(`Failed to update rating: ${err}`);
+      throw new Error(`Failed to update rating.`);
     }
   }
 
@@ -91,23 +112,31 @@ export class GameInUserLibraryResolver {
   // ----------------------------------
   // REMOVE GAME FROM LIBRARY
   // ----------------------------------
-  @Mutation(_returns => Boolean)
+  // @Mutation(_returns => Boolean)
+  @Mutation(_returns => ID)
   @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
   async removeGameFromLibrary(
     @Ctx() { req }: Context,
     @Arg('igdb_game_id', _type => Int) igdb_game_id: number
   ) {
-    console.log(`\nRemoving game from library...\n------------------------------------------------`);
+    console.log(`\nRemoving game (id: ${igdb_game_id} from library...\n------------------------------------------------`);
     const { userId } = req.session;
 
+    const gameToDelete = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId } });
+    console.log('find game before deletion: ', gameToDelete);
+
+    if (!gameToDelete) return 0;
+
+    // const response = await GameInUserLibrary.delete({ igdb_game_id: igdb_game_id, user: { id: userId } });
     const response = await GameInUserLibrary.delete({ igdb_game_id: igdb_game_id, user: { id: userId } });
 
-    // // TEMP
-    // console.log('delete response: ', response); // TEMP
+    // TEMP
+    console.log('delete response: ', response); // TEMP
     // const updatedGame = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId }});
     // console.log('TRY GAME: ', updatedGame);
 
-    return response.affected === 0 ? false : true;
+    return response.affected === 1 ? gameToDelete.id : 0;
+    // return response.affected === 0 ? false : true;
   }
 
 
@@ -150,5 +179,42 @@ export class GameInUserLibraryResolver {
     const library = await this.gameService.findGamesInIGDB(igdb_access_token, '', onlyIds, 30);
     // console.log('library response (only names)', library.map(game => game.name));
     return library;
+  }
+
+
+  // ----------------------------------
+  // GET RANKED GAMES (All users)
+  // ----------------------------------
+  @Query(_returns => [GameInUserLibrary])
+  async getRanking() {
+    console.log('======================================================');
+    console.log('\nGetting all Average Ratings...\n------------------------------------------------------');
+    try {
+      /*
+      Target SQL query:
+            SELECT igdb_game_id,
+                ROUND(AVG(rating),1) AS average_rating
+            FROM game_in_user_library
+            WHERE rating IS NOT NULL
+            GROUP BY igdb_game_id;
+            ORDER BY average_rating DESC
+      */
+
+      const averageRatings = await GameInUserLibrary
+        .createQueryBuilder('gameInUserLibrary')
+        .select(['igdb_game_id', 'ROUND(AVG(rating), 1) AS average_rating'])
+        .where('rating IS NOT NULL')
+        .groupBy('igdb_game_id')
+        .orderBy('average_rating', 'DESC')
+        .getRawMany()
+
+      console.log('grouped:', averageRatings);
+
+      return averageRatings;
+    }
+    catch (err) {
+      console.log(`Failed to get average ratins: ${err}`);
+      throw new Error(`Failed to get average ratins.`);
+    }
   }
 }
