@@ -6,6 +6,7 @@ import { isUserAuthenticated } from '../../middleware/isUserAuthenticated';
 import User from '../users/typeDef';
 import { GameService } from '../games/service';
 import Game from '../games/typeDef';
+import { RankingElement } from '../minorEntities/typeDef';
 
 @Service()
 @Resolver(_of => GameInUserLibrary)
@@ -185,7 +186,7 @@ export class GameInUserLibraryResolver {
   // ----------------------------------
   // GET RANKED GAMES (All users)
   // ----------------------------------
-  @Query(_returns => [GameInUserLibrary])
+  @Query(_returns => [RankingElement])
   async getRanking() {
     console.log('======================================================');
     console.log('\nGetting all Average Ratings...\n------------------------------------------------------');
