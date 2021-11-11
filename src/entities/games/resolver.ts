@@ -3,6 +3,8 @@ import Game from './typeDef';
 import { GameService } from './service';
 import { Service } from 'typedi';
 import { Context } from '../../types';
+import GameInUserLibrary from '../gamesInUserLibrary/typeDef';
+import { GameInUserLibraryResolver } from '../gamesInUserLibrary/resolver';
 
 
 // The @Resolver() decorator makes this class behave like a controller from classic REST frameworks
@@ -28,9 +30,9 @@ export class GameResolver {
     console.log('======================================================');
     console.log(`Finding games... (In Resolver: name: ${name}, id: ${id}, maxResults: ${maxResults})`);
 
-    if (!name && (!id || id.length === 0)) {
-      throw new Error('An argument is required.');
-    }
+    // if (!name && (!id || id.length === 0)) {
+    //   throw new Error('An argument is required.');
+    // }
     // else if (name) {
     //   console.log(`Looking for games containing "${name}"...`);
     // }

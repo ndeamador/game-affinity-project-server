@@ -33,7 +33,7 @@ export class GameService {
 
   // };
 
-  findGamesInIGDB = async (access_token: string, name: string, id: number[], maxResults = 6): Promise<Game[]> => {
+  findGamesInIGDB = async (access_token: string, name?: string, id?: number[], maxResults = 6): Promise<Game[]> => {
     console.log('======================================================');
     console.log('Finding games in IGDB...\n------------------------------------------------------');
     console.log(`Arguments: name-> ${name}, id-> ${id}, maxResults -> ${maxResults}`);
@@ -43,6 +43,10 @@ export class GameService {
     // if (!name && (!id || id.length === 0)) {
     //   throw new Error('An argument is required.');
     // }
+
+    if (!name && (!id || id.length === 0)) {
+      throw new Error('An argument is required.');
+    }
 
 
     // Note that 'cover', 'genres', 'platforms', etc. are a different entities with their own endpoint, but we can use IGDB expander feature to query, forinstance, cover.url instead of having to query two different endpoints
