@@ -33,10 +33,10 @@ export class GameService {
 
   // };
 
-  findGamesInIGDB = async (access_token: string, name?: string, id?: number[], maxResults = 6): Promise<Game[]> => {
+  findGamesInIGDB = async (access_token: string, name?: string, ids?: number[], maxResults = 6): Promise<Game[]> => {
     console.log('======================================================');
     console.log('Finding games in IGDB...\n------------------------------------------------------');
-    console.log(`Arguments: name-> ${name}, id-> ${id}, maxResults -> ${maxResults}`);
+    console.log(`Arguments: name-> ${name}, ids-> ${ids}, maxResults -> ${maxResults}`);
 
     // This is already checked by the resolver:
     // if (maxResults < 1) return [];
@@ -44,7 +44,7 @@ export class GameService {
     //   throw new Error('An argument is required.');
     // }
 
-    if (!name && (!id || id.length === 0)) {
+    if (!name && (!ids || ids.length === 0)) {
       throw new Error('An argument is required.');
     }
 
@@ -74,9 +74,9 @@ export class GameService {
         search "${name}";
       `;
     }
-    else if (id) {
+    else if (ids) {
       requestBody += `
-        where id = (${id});
+        where id = (${ids});
       `;
     }
 

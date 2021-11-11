@@ -7,12 +7,17 @@ import User from '../users/typeDef';
 import { GameService } from '../games/service';
 import Game from '../games/typeDef';
 import { RankingElement } from '../minorEntities/typeDef';
+import { GameInUserLibraryService } from './service';
 
 @Service()
 @Resolver(_of => GameInUserLibrary)
 export class GameInUserLibraryResolver {
   // Using service of Game in GameInUserLibrary, check if it's safe to do so.
-  constructor(private readonly gameService: GameService) { }
+  // constructor(private readonly gameService: GameService) { }
+
+
+  constructor(private readonly gameInUserLibraryService: GameInUserLibraryService) { }
+
 
   // ----------------------------------
   // ADD GAME TO LIBRARY
@@ -24,36 +29,40 @@ export class GameInUserLibraryResolver {
     @Arg('gameId', _type => Int) gameId: number,
     @Arg('rating', _type => Int, { nullable: true }) rating: Rating
   ) {
-    console.log(`\nAdding game to library (id: ${gameId} - rating: ${rating})...\n------------------------------------------------`);
+    // console.log(`\nAdding game to library (id: ${gameId} - rating: ${rating})...\n------------------------------------------------`);
 
-    try {
-      const { userId } = req.session;
+    // try {
+    //   const { userId } = req.session;
 
-      const foundUser = await User.findOneOrFail({ where: { id: userId } });
+    //   const foundUser = await User.findOneOrFail({ where: { id: userId } });
 
-      const gameInLibrary = new GameInUserLibrary();
-      gameInLibrary.user = foundUser;
-      gameInLibrary.igdb_game_id = gameId;
-      // console.log('founduser: ', foundUser);
-      // console.log('gameInLibrary: ', gameInLibrary);
-
-
-      if (rating) gameInLibrary.rating = rating;
-      // gameInLibrary.rating = rating;
+    //   const gameInLibrary = new GameInUserLibrary();
+    //   gameInLibrary.user = foundUser;
+    //   gameInLibrary.igdb_game_id = gameId;
+    //   // console.log('founduser: ', foundUser);
+    //   // console.log('gameInLibrary: ', gameInLibrary);
 
 
-      // const savedGameInLibrary = await getConnection().manager.save(gameInLibrary);
-      const savedGameInLibrary = await gameInLibrary.save();
-
-      // console.log('Game saved to library: ', savedGameInLibrary.igdb_game_id);
-      console.log('Game saved to library: \n', savedGameInLibrary);
+    //   if (rating) gameInLibrary.rating = rating;
+    //   // gameInLibrary.rating = rating;
 
 
-      return savedGameInLibrary;
-    }
-    catch (err) {
-      throw new Error(`Failed to add game to library: ${err}`);
-    }
+    //   // const savedGameInLibrary = await getConnection().manager.save(gameInLibrary);
+    //   const savedGameInLibrary = await gameInLibrary.save();
+
+    //   // console.log('Game saved to library: ', savedGameInLibrary.igdb_game_id);
+    //   console.log('Game saved to library: \n', savedGameInLibrary);
+
+
+    //   return savedGameInLibrary;
+    // }
+    // catch (err) {
+    //   throw new Error(`Failed to add game to library: ${err}`);
+    // }
+
+    const { userId } = req.session;
+    if (!userId) throw Error;
+    return this.gameInUserLibraryService.create(userId, gameId, rating)
   }
 
 
@@ -157,30 +166,30 @@ export class GameInUserLibraryResolver {
     return library;
   }
 
-  // ----------------------------------
-  // GET ALL GAMES IN LIBRARY
-  // ----------------------------------
-  @Query(_returns => [Game])
-  // @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
-  async getLibrary(
-    @Ctx() { req, igdb_access_token }: Context,
-  ) {
-    console.log('======================================================');
-    console.log('\nGetting library...\n------------------------------------------------------');
-    const { userId } = req.session;
-    console.log('USER ID: ', userId);
+  // // ----------------------------------
+  // // GET ALL GAMES IN LIBRARY
+  // // ----------------------------------
+  // @Query(_returns => [Game])
+  // // @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
+  // async getLibrary(
+  //   @Ctx() { req, igdb_access_token }: Context,
+  // ) {
+  //   console.log('======================================================');
+  //   console.log('\nGetting library...\n------------------------------------------------------');
+  //   const { userId } = req.session;
+  //   console.log('USER ID: ', userId);
 
-    const libraryItems = await GameInUserLibrary.find({ where: { user: userId } });
-    // console.log('libraryitems: ', libraryItems);
-    const onlyIds: number[] = libraryItems.map(item => item.igdb_game_id);
-    // console.log('onlyids:', onlyIds, typeof onlyIds, 'length: ', onlyIds.length);
+  //   const libraryItems = await GameInUserLibrary.find({ where: { user: userId } });
+  //   // console.log('libraryitems: ', libraryItems);
+  //   const onlyIds: number[] = libraryItems.map(item => item.igdb_game_id);
+  //   // console.log('onlyids:', onlyIds, typeof onlyIds, 'length: ', onlyIds.length);
 
-    if (onlyIds.length === 0) return [];
+  //   if (onlyIds.length === 0) return [];
 
-    const library = await this.gameService.findGamesInIGDB(igdb_access_token, '', onlyIds, 30);
-    // console.log('library response (only names)', library.map(game => game.name));
-    return library;
-  }
+  //   const library = await this.gameService.findGamesInIGDB(igdb_access_token, '', onlyIds, 30);
+  //   // console.log('library response (only names)', library.map(game => game.name));
+  //   return library;
+  // }
 
 
   // ----------------------------------
