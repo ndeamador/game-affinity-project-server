@@ -114,24 +114,28 @@ export class GameInUserLibraryResolver {
     @Ctx() { req }: Context,
     @Arg('igdb_game_id', _type => Int) igdb_game_id: number
   ) {
-    console.log(`\nRemoving game (id: ${igdb_game_id} from library...\n------------------------------------------------`);
-    const { userId } = req.session;
+    // console.log(`\nRemoving game (id: ${igdb_game_id} from library...\n------------------------------------------------`);
+    // const { userId } = req.session;
 
-    const gameToDelete = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId } });
-    console.log('find game before deletion: ', gameToDelete);
+    // const gameToDelete = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId } });
+    // console.log('find game before deletion: ', gameToDelete);
 
-    if (!gameToDelete) return 0;
+    // if (!gameToDelete) return 0;
 
+    // // const response = await GameInUserLibrary.delete({ igdb_game_id: igdb_game_id, user: { id: userId } });
     // const response = await GameInUserLibrary.delete({ igdb_game_id: igdb_game_id, user: { id: userId } });
-    const response = await GameInUserLibrary.delete({ igdb_game_id: igdb_game_id, user: { id: userId } });
 
-    // TEMP
-    console.log('delete response: ', response); // TEMP
-    // const updatedGame = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId }});
-    // console.log('TRY GAME: ', updatedGame);
+    // // TEMP
+    // console.log('delete response: ', response); // TEMP
+    // // const updatedGame = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId }});
+    // // console.log('TRY GAME: ', updatedGame);
 
-    return response.affected === 1 ? gameToDelete.id : 0;
-    // return response.affected === 0 ? false : true;
+    // return response.affected === 1 ? gameToDelete.id : 0;
+    // // return response.affected === 0 ? false : true;
+
+    const { userId } = req.session;
+    if (!userId) throw Error;
+    return this.gameInUserLibraryService.delete(userId, igdb_game_id)
   }
 
 
@@ -182,34 +186,35 @@ export class GameInUserLibraryResolver {
   // ----------------------------------
   @Query(_returns => [RankingElement])
   async getRanking() {
-    console.log('======================================================');
-    console.log('\nGetting all Average Ratings...\n------------------------------------------------------');
-    try {
-      /*
-      Target SQL query:
-            SELECT igdb_game_id,
-                ROUND(AVG(rating),1) AS average_rating
-            FROM game_in_user_library
-            WHERE rating IS NOT NULL
-            GROUP BY igdb_game_id;
-            ORDER BY average_rating DESC
-      */
+    // console.log('======================================================');
+    // console.log('\nGetting all Average Ratings...\n------------------------------------------------------');
+    // try {
+    //   /*
+    //   Target SQL query:
+    //         SELECT igdb_game_id,
+    //             ROUND(AVG(rating),1) AS average_rating
+    //         FROM game_in_user_library
+    //         WHERE rating IS NOT NULL
+    //         GROUP BY igdb_game_id;
+    //         ORDER BY average_rating DESC
+    //   */
 
-      const averageRatings = await GameInUserLibrary
-        .createQueryBuilder('gameInUserLibrary')
-        .select(['igdb_game_id', 'ROUND(AVG(rating), 1) AS average_rating'])
-        .where('rating IS NOT NULL')
-        .groupBy('igdb_game_id')
-        .orderBy('average_rating', 'DESC')
-        .getRawMany()
+    //   const averageRatings = await GameInUserLibrary
+    //     .createQueryBuilder('gameInUserLibrary')
+    //     .select(['igdb_game_id', 'ROUND(AVG(rating), 1) AS average_rating'])
+    //     .where('rating IS NOT NULL')
+    //     .groupBy('igdb_game_id')
+    //     .orderBy('average_rating', 'DESC')
+    //     .getRawMany()
 
-      console.log('grouped:', averageRatings);
+    //   console.log('grouped:', averageRatings);
 
-      return averageRatings;
-    }
-    catch (err) {
-      console.log(`Failed to get average ratins: ${err}`);
-      throw new Error(`Failed to get average ratins.`);
-    }
+    //   return averageRatings;
+    // }
+    // catch (err) {
+    //   console.log(`Failed to get average ratins: ${err}`);
+    //   throw new Error(`Failed to get average ratins.`);
+    // }
+    return this.gameInUserLibraryService.getAverageRatings()
   }
 }
