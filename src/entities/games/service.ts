@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import Game, { RatedGame } from './typeDef';
+import Game from './typeDef';
 import fetch from 'node-fetch';
 import { IGDBGameQueryError } from '../../types';
 import { GameInUserLibraryService } from '../gamesInUserLibrary/service';
@@ -143,22 +143,22 @@ export class GameService {
   };
 
 
-  async getRankedGames(igdb_access_token: string): Promise<RatedGame[]> {
+  async getRankedGames(igdb_access_token: string): Promise<Game[]> {
     console.log('\nGetting Ranked Games...\n------------------------------------------------------');
     try {
       const averageRatings = await this.gameInUserLibraryService.getAverageRatings();
       const gamesIdsToFetch = averageRatings.map(game => game.igdb_game_id)
       const fetchedGames = await this.findGamesInIGDB(igdb_access_token, undefined, gamesIdsToFetch, 30)
 
-      const gamesWithAverageRatings: RatedGame[] = fetchedGames.map(game => {
+      const gamesWithAverageRatings: Game[] = fetchedGames.map(game => {
         const average_rating = averageRatings.find(rating => rating.igdb_game_id === game.id)?.average_rating;
 
-        const gameWithAvgRating = {
+        const gameWithyAvgRating = {
           ...game,
           average_rating
-        } as RatedGame;
+        } as Game;
 
-        return gameWithAvgRating
+        return gameWithyAvgRating
       }).sort((a, b) => a.average_rating < b.average_rating ? 1 : -1);
 
       return gamesWithAverageRatings;

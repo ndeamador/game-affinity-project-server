@@ -30,12 +30,8 @@ class Game {
 
   @Field(_type => [InvolvedCompany], { nullable: true })
   involved_companies: InvolvedCompany[];
-}
 
-@ObjectType()
-export class RatedGame extends Game {
-  @Field()
-  // @Field(_type => Number)
+  @Field({ nullable: true })
   average_rating: number;
 }
 
