@@ -10,33 +10,6 @@ export class GameService {
 
   constructor(private readonly gameInUserLibraryService: GameInUserLibraryService) { }
 
-
-  // requestIGDBCredentials = async (): Promise<IGDBCredentials> => {
-
-  //   const response = await fetch(
-  //     `https://id.twitch.tv/oauth2/token?client_id=${process.env.TWITCH_CLIENT_ID}&client_secret=${process.env.TWITCH_CLIENT_SECRET}&grant_type=client_credentials`
-  //     , {
-  //       method: 'post',
-  //     });
-
-  //   if (response.ok) {
-
-  //     const isCredentials = (uncheckedCredentials: any): uncheckedCredentials is IGDBCredentials => {
-  //       return
-  //     };
-
-  //     const credentials: IGDBCredentials = await response.json();
-  //     // console.log(credentials);
-  //     return credentials;
-  //   }
-  //   else {
-  //     const errorMessage = `Error: ${response.statusText} (Code: ${response.status})`;
-  //     console.log(errorMessage);
-  //     throw new Error(errorMessage);
-  //   }
-
-  // };
-
   findGamesInIGDB = async (access_token: string, name?: string, ids?: number[], maxResults = 6): Promise<Game[]> => {
     console.log('======================================================');
     console.log('Finding games in IGDB...\n------------------------------------------------------');
@@ -109,12 +82,6 @@ export class GameService {
       return [];
     }
 
-
-
-    // console.log('\n\nGames received: ', games.length, games.map(game => `${game.name} - ${game.total_rating_count}`));
-    // console.log('\n\nFIRST GAME: ', games[0]);
-
-
     const onlyRatedGames = games.filter(game => game.total_rating_count);
     let requiredGames = onlyRatedGames;
 
@@ -147,7 +114,7 @@ export class GameService {
     console.log('\nGetting Ranked Games...\n------------------------------------------------------');
     try {
       const averageRatings = await this.gameInUserLibraryService.getAverageRatings();
-      const gamesIdsToFetch = averageRatings.map(game => game.igdb_game_id)
+      const gamesIdsToFetch = averageRatings.filter(game => game.average_rating > 0).map(game => game.igdb_game_id)
       const fetchedGames = await this.findGamesInIGDB(igdb_access_token, undefined, gamesIdsToFetch, 30)
 
       const gamesWithAverageRatings: Game[] = fetchedGames.map(game => {
@@ -160,6 +127,8 @@ export class GameService {
 
         return gameWithyAvgRating
       }).sort((a, b) => a.average_rating < b.average_rating ? 1 : -1);
+
+      console.log('game', gamesWithAverageRatings.map(game => game.average_rating));
 
       return gamesWithAverageRatings;
     }
