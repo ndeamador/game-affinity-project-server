@@ -66,3 +66,13 @@ export class InvolvedCompany {
   @Field({ nullable: true })
   company: Company;
 }
+
+
+@ObjectType()
+export class RankingElement {
+  @Field()
+  igdb_game_id: number;
+
+  @Field()
+  average_rating: number;
+}

@@ -12,7 +12,7 @@ export interface CustomSession extends Session {
   userId?: number;
 }
 
-export type Rating = 0 | 1 | 2 | 3;
+export type Rating = 0 | 1 | 2 | 3 ;
 
 export interface IGDBCredentials {
   access_token: string,
