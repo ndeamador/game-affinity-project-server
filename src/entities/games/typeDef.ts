@@ -32,4 +32,11 @@ class Game {
   involved_companies: InvolvedCompany[];
 }
 
+@ObjectType()
+export class RatedGame extends Game {
+  @Field()
+  // @Field(_type => Number)
+  average_rating: number;
+}
+
 export default Game;

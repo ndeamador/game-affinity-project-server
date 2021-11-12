@@ -1,6 +1,5 @@
 import { Service } from 'typedi';
 import { Rating } from '../../types';
-import Game from './typeDef';
 import GameInUserLibrary from './typeDef';
 import User from '../users/typeDef';
 import { RankingElement } from '../minorEntities/typeDef';
@@ -75,25 +74,25 @@ export class GameInUserLibraryService {
                 ROUND(AVG(rating),1) AS average_rating
             FROM game_in_user_library
             WHERE rating IS NOT NULL
-            GROUP BY igdb_game_id;
+            GROUP BY igdb_game_id
             ORDER BY average_rating DESC
       */
 
       const averageRatings = await GameInUserLibrary
         .createQueryBuilder('gameInUserLibrary')
-        .select(['igdb_game_id', 'ROUND(AVG(rating), 1) AS average_rating'])
+        .select(['igdb_game_id', 'ROUND(AVG(rating), 1)::real AS average_rating']) // added ::real to counter the JS-incompatible DB numeric type (bigint?) getting casted into a string.
         .where('rating IS NOT NULL')
         .groupBy('igdb_game_id')
         .orderBy('average_rating', 'DESC')
         .getRawMany()
 
       if (!averageRatings) throw Error;
-      console.log('grouped:', averageRatings);
+      console.log('new:', averageRatings[0].average_rating, typeof(averageRatings[0].average_rating));
       return averageRatings as [RankingElement];
     }
     catch (err) {
       console.log(`Failed to get average ratins: ${err}`);
-      throw new Error(`Failed to get average ratins.`);
+      throw new Error(`Failed to get average ratings.`);
     }
   }
 

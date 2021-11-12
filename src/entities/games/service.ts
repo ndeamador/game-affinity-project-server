@@ -1,11 +1,15 @@
 import { Service } from 'typedi';
-import Game from './typeDef';
+import Game, { RatedGame } from './typeDef';
 import fetch from 'node-fetch';
 import { IGDBGameQueryError } from '../../types';
+import { GameInUserLibraryService } from '../gamesInUserLibrary/service';
 
 
 @Service()
 export class GameService {
+
+  constructor(private readonly gameInUserLibraryService: GameInUserLibraryService) { }
+
 
   // requestIGDBCredentials = async (): Promise<IGDBCredentials> => {
 
@@ -137,4 +141,32 @@ export class GameService {
 
     return slicedGames;
   };
+
+
+  async getRankedGames(igdb_access_token: string): Promise<RatedGame[]> {
+    console.log('\nGetting Ranked Games...\n------------------------------------------------------');
+    try {
+      const averageRatings = await this.gameInUserLibraryService.getAverageRatings();
+      const gamesIdsToFetch = averageRatings.map(game => game.igdb_game_id)
+      const fetchedGames = await this.findGamesInIGDB(igdb_access_token, undefined, gamesIdsToFetch, 30)
+
+      const gamesWithAverageRatings: RatedGame[] = fetchedGames.map(game => {
+        const average_rating = averageRatings.find(rating => rating.igdb_game_id === game.id)?.average_rating;
+
+        const gameWithAvgRating = {
+          ...game,
+          average_rating
+        } as RatedGame;
+
+        return gameWithAvgRating
+      }).sort((a, b) => a.average_rating < b.average_rating ? 1 : -1);
+
+      return gamesWithAverageRatings;
+    }
+    catch (err) {
+      console.log(`Failed to get fetch ranking: ${err}`);
+      throw new Error(`Failed to get fetch ranking.`);
+    }
+  }
+
 }

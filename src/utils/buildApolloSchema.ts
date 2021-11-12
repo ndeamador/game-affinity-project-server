@@ -9,7 +9,7 @@ const buildApolloSchema = () => buildSchema({
   resolvers: [GameResolver, UserResolver, GameInUserLibraryResolver],
   // validate: false, // validation using class-validator is enabled by default, we can disable it if we want to use a different method.
   dateScalarMode: "timestamp", // Change date format from the default ISO to timestamps (for IGDB database fields)
-  container: Container,
+  container: Container, // Scoped container for Dependency Injection https://typegraphql.com/docs/dependency-injection.html
   emitSchemaFile: false // allows TypeGraphQL to generate a schema.gql file at build-time
 });
 

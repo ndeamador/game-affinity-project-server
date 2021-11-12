@@ -74,5 +74,5 @@ export class RankingElement {
   igdb_game_id: number;
 
   @Field()
-  average_rating: string;
+  average_rating: number;
 }
