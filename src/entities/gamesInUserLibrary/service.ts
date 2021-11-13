@@ -87,7 +87,6 @@ export class GameInUserLibraryService {
         .getRawMany()
 
       if (!averageRatings) throw Error;
-      console.log('new:', averageRatings[0].average_rating, typeof(averageRatings[0].average_rating));
       return averageRatings as [RankingElement];
     }
     catch (err) {
