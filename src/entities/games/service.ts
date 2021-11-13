@@ -15,20 +15,19 @@ export class GameService {
     console.log('Finding games in IGDB...\n------------------------------------------------------');
     console.log(`Arguments: name-> ${name}, ids-> ${ids}, maxResults -> ${maxResults}`);
 
-    // This is already checked by the resolver:
-    // if (maxResults < 1) return [];
-    // if (!name && (!id || id.length === 0)) {
-    //   throw new Error('An argument is required.');
-    // }
-
+    if (maxResults < 1) return [];
     if (!name && (!ids || ids.length === 0)) {
       throw new Error('An argument is required.');
+    }
+    if (maxResults > 40) {
+      throw new Error('Too many requests') // IGDB only allows 4 requests pers second (our max is 4 batches of 10). Just a basic workaroudn to limit requests.
     }
 
 
     // Note that 'cover', 'genres', 'platforms', etc. are a different entities with their own endpoint, but we can use IGDB expander feature to query, forinstance, cover.url instead of having to query two different endpoints
     // https://api-docs.igdb.com/#expander
-    let requestBody = `
+    const generateRequestBody = (name?: string, ids?: number[]): string => {
+      let requestBody = `
       fields
         total_rating_count,
         name,
@@ -45,37 +44,95 @@ export class GameService {
         involved_companies.company.name,
         involved_companies.developer;
       `;
-    if (name) {
-      requestBody += `
-        limit ${Math.max(maxResults, 20)};
+      if (name) {
+        requestBody += `
+        limit ${Math.max(maxResults, 10)};
         search "${name}";
       `;
-    }
-    else if (ids) {
-      requestBody += `
+      }
+      else if (ids) {
+        requestBody += `
         where id = (${ids});
       `;
-    }
-
-    const response = await fetch('https://api.igdb.com/v4/games', {
-      method: 'POST',
-      body: requestBody,
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Client-ID': `${process.env.TWITCH_CLIENT_ID}`
       }
-    });
-
-
-    if (!response.ok) {
-      const responseError = await response.json() as IGDBGameQueryError[];
-      console.log(`Error retrieving games from IGDB:`);
-      console.log(responseError);
-
-      throw new Error(`Unable to retrieve games from IGDB.`);
+      return requestBody;
     }
 
-    const games = await response.json() as Game[];
+    const callAPI = async (requestBody: string) => {
+      const response = fetch('https://api.igdb.com/v4/games', {
+        method: 'POST',
+        body: requestBody,
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Client-ID': `${process.env.TWITCH_CLIENT_ID}`
+        }
+      });
+      // console.log('type in callapi', typeof(response))
+      return response
+    }
+
+    // console.log('body test:', generateRequestBody(undefined, ids));
+    // console.log('callapit test:', await (await callAPI(generateRequestBody(undefined, ids))).body);
+
+    let games: Game[] = [];
+    // Since we are querying several endpoints (game, platform, genre...) from IGDB, it's considered a 'multi-query' and the request is limited to 10 results
+    // We make several requests in batches of 10 as a workaround
+    if (ids && maxResults > 10) {
+      const splitInGroupsOfN = async (n: number, data: any[]): Promise<any> => {
+        let promises: Promise<any>[] = [];
+
+        for (let i = 0; i < data.length; i += n) {
+          const currentIdBatch = data.slice(i, i + n)
+          promises.push(callAPI(generateRequestBody(undefined, currentIdBatch)))
+        }
+
+        return Promise.all(promises);
+      }
+
+      const allApiResponses: object[] = await splitInGroupsOfN(10, ids)
+
+      const parsedBatches = await Promise.all(
+        allApiResponses.map(async (response: any) => {
+          if (!response.ok) throw new Error(`Unable to retrieve games from IGDB.`);
+          const parsedBatch = await response.json() as Game[];
+          return parsedBatch;
+        })
+      )
+
+      let mergedResponses: Game[] = [];
+      parsedBatches.forEach(elem => mergedResponses.push(...elem))
+
+      console.log('multiple responses', mergedResponses.map(elem => elem.name));
+      games = mergedResponses;
+    }
+    else {
+      let requestBody = generateRequestBody(name, ids)
+
+      const response = await fetch('https://api.igdb.com/v4/games', {
+        method: 'POST',
+        body: requestBody,
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Client-ID': `${process.env.TWITCH_CLIENT_ID}`
+        }
+      });
+
+      if (!response.ok) {
+        const responseError = await response.json() as IGDBGameQueryError[];
+        console.log(`Error retrieving games from IGDB:`);
+        console.log(responseError);
+
+        throw new Error(`Unable to retrieve games from IGDB.`);
+      }
+
+      // const games = await response.json() as Game[];
+      games = await response.json() as Game[];
+      // console.log('data:', games.length);
+    }
+
+
+
+
 
     if (games.length === 0) {
       console.log(`No games found.`);
@@ -104,7 +161,7 @@ export class GameService {
 
     // limit response size to maxResults
     const slicedGames = requiredGames.slice(0, maxResults);
-    console.log('\nGames sent: ', slicedGames.length, slicedGames.map(game => `${game.name} - ${game.total_rating_count}`));
+    // console.log('\nGames sent: ', slicedGames.length, slicedGames.map(game => `${game.name} - ${game.total_rating_count}`));
 
     return slicedGames;
   };
