@@ -107,7 +107,6 @@ export class GameService {
       games = mergedResponses;
     }
     else {
-      console.log('here');
       let requestBody = generateRequestBody(name, ids)
       const response = await callAPI(requestBody)
 
