@@ -131,3 +131,8 @@ CORS_ORIGIN=
 ```
 POSTGRES_PASSWORD=yourlocalpassword npm run start:test
 ```
+
+### Github environmental variables
+The GitHub Actions pipeline includes the optional pipeline of deploying a Docker image to Docker Hub, for which the following secrets must be set up in the GitHub repository:
+DOCKERHUB_USERNAME
+DOCKERHUB_TOKEN
