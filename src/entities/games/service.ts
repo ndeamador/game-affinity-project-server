@@ -59,6 +59,7 @@ export class GameService {
     }
 
     const callAPI = async (requestBody: string) => {
+
       const response = fetch('https://api.igdb.com/v4/games', {
         method: 'POST',
         body: requestBody,
@@ -107,15 +108,17 @@ export class GameService {
     }
     else {
       let requestBody = generateRequestBody(name, ids)
+      const response = await callAPI(requestBody)
 
-      const response = await fetch('https://api.igdb.com/v4/games', {
-        method: 'POST',
-        body: requestBody,
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Client-ID': `${process.env.TWITCH_CLIENT_ID}`
-        }
-      });
+      // const response = await fetch('https://api.igdb.com/v4/games', {
+      //   method: 'POST',
+      //   body: requestBody,
+      //   headers: {
+      //     'Authorization': `Bearer ${access_token}`,
+      //     'Client-ID': `${process.env.TWITCH_CLIENT_ID}`
+      //   }
+      // });
+
 
       if (!response.ok) {
         const responseError = await response.json() as IGDBGameQueryError[];
@@ -125,13 +128,8 @@ export class GameService {
         throw new Error(`Unable to retrieve games from IGDB.`);
       }
 
-      // const games = await response.json() as Game[];
       games = await response.json() as Game[];
-      // console.log('data:', games.length);
     }
-
-
-
 
 
     if (games.length === 0) {
