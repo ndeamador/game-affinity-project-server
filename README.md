@@ -134,5 +134,10 @@ POSTGRES_PASSWORD=yourlocalpassword npm run start:test
 
 ### Github environmental variables
 The GitHub Actions pipeline includes the optional pipeline of deploying a Docker image to Docker Hub, for which the following secrets must be set up in the GitHub repository:
-DOCKERHUB_USERNAME
-DOCKERHUB_TOKEN
+`DOCKERHUB_USERNAME`
+`DOCKERHUB_TOKEN`
+
+In order for the pipeline to publish to Docker Hub, the text `#dockerhub-push` must be included in the title of the merge request with the main branch.
+
+## MISC
+* To generate a new migration file after making changes in the TypeORM schemas, the command `npx typeorm migration:generate -n initial --pretty` can be run.
