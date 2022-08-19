@@ -24,7 +24,7 @@ export class UserResolver {
 
     try {
       const newUser = await User.create({
-        email,
+        email: email.toLowerCase(),
         password: hashedPassword
       }).save();
 
