@@ -24,7 +24,7 @@ export class GameInUserLibraryResolver {
   ) {
     const { userId } = req.session;
     if (!userId) throw Error;
-    return this.gameInUserLibraryService.create(userId, gameId, rating)
+    return this.gameInUserLibraryService.create(userId, gameId, rating);
   }
 
 
@@ -37,10 +37,11 @@ export class GameInUserLibraryResolver {
     @Ctx() { req }: Context,
     @Arg('igdb_game_id', _type => Int) igdb_game_id: number,
     @Arg('rating', _type => Int, { nullable: true }) rating: Rating,
+    @Arg('subrating', _type => Int, { nullable: true }) subrating: number,
   ) {
     const { userId } = req.session;
     if (!userId) throw Error;
-    return this.gameInUserLibraryService.updateRating(userId, igdb_game_id, rating)
+    return this.gameInUserLibraryService.updateRating(userId, igdb_game_id, rating, subrating);
   }
 
 

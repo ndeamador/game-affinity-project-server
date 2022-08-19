@@ -18,7 +18,7 @@ export class GameInUserLibraryService {
       gameInLibrary.user = foundUser;
       gameInLibrary.igdb_game_id = gameId;
 
-      if (rating || rating === 0 ) gameInLibrary.rating = rating; // rating === 0 workaround to prevent that "thumbs-down" ratings are passed as !rating.
+      if (rating || rating === 0) gameInLibrary.rating = rating; // rating === 0 workaround to prevent that "thumbs-down" ratings are passed as !rating.
       const savedGameInLibrary = await gameInLibrary.save();
 
       console.log('Game saved to library: \n', savedGameInLibrary);
@@ -30,15 +30,15 @@ export class GameInUserLibraryService {
   }
 
 
-  async updateRating(userId: number, igdb_game_id: number, rating: Rating): Promise<GameInUserLibrary> {
-    console.log(`\nUpdating rating (igdb_game_id: ${igdb_game_id})...\n------------------------------------------------`);
+  async updateRating(userId: number, igdb_game_id: number, rating: Rating, subrating: number): Promise<GameInUserLibrary> {
+    console.log(`\nUpdating rating (igdb_game_id: ${igdb_game_id} || subrating: ${subrating})...\n------------------------------------------------`);
 
     try {
-      const updateResponse = await GameInUserLibrary.update({ igdb_game_id: igdb_game_id, user: { id: userId } }, { rating: rating });
+      // BaseEntity.update({id}, {values to update})
+      const updateResponse = await GameInUserLibrary.update({ igdb_game_id: igdb_game_id, user: { id: userId } }, { rating: rating, subrating: subrating });
 
       if (updateResponse.affected === 0) throw Error;
       const updatedGame = await GameInUserLibrary.findOne({ igdb_game_id: igdb_game_id, user: { id: userId } });
-
       if (!updatedGame) throw Error;
       return updatedGame;
     }
