@@ -3,7 +3,7 @@
 <br>
 
 
-[View client](https://github.com/ndeamador/game-affinity-project-client)
+[View client repository](https://github.com/ndeamador/game-affinity-project-client)
 
 <br>
 

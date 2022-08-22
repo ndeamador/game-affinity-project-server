@@ -73,7 +73,7 @@ export class GameInUserLibraryService {
             SELECT igdb_game_id,
                 ROUND(AVG(rating),1) AS average_rating
             FROM game_in_user_library
-            WHERE rating IS NOT NULL
+            WHERE rating > 0
             GROUP BY igdb_game_id
             ORDER BY average_rating DESC
       */
@@ -81,7 +81,8 @@ export class GameInUserLibraryService {
       const averageRatings = await GameInUserLibrary
         .createQueryBuilder('gameInUserLibrary')
         .select(['igdb_game_id', 'ROUND(AVG(rating), 1)::real AS average_rating']) // added ::real to counter the JS-incompatible DB numeric type (bigint?) getting casted into a string.
-        .where('rating IS NOT NULL')
+        // .where('rating IS NOT NULL')
+        .where('rating > 0')
         .groupBy('igdb_game_id')
         .orderBy('average_rating', 'DESC')
         .getRawMany()
