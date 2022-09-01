@@ -89,6 +89,8 @@ export class UserResolver {
   ) {
     console.log('In me query');
     // console.log('test req:', req.session);
+    console.log('session id: ', req.sessionID);
+
     if (!req.session.userId) {
       console.log('No session');
       return null;
