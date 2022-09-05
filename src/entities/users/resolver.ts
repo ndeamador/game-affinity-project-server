@@ -51,6 +51,35 @@ export class UserResolver {
   }
 
 
+  // // ----------------------------------
+  // // LOGIN
+  // // ----------------------------------
+  // @Mutation(_returns => User)
+  // async login(
+  //   @Arg('email', _type => String, { nullable: false }) email: string,
+  //   @Arg('password', _type => String, { nullable: false }) password: string,
+  //   @Ctx() { req }: Context
+  // ): Promise<User> {
+  //   console.log('Logging in...');
+
+  //   const user = await User.findOne({ where: { email: email.toLowerCase() } });
+  //   if (!user) {
+  //     throw new Error('User not found.');
+  //   }
+
+  //   const validPassword = await bcrypt.compare(password, user.password);
+  //   if (!validPassword) {
+  //     throw new Error('Incorrect password');
+  //   }
+
+  //   // remember to set "request.credentials": "include" in GraphQL playground for the queries to work
+  //   // this command sets a cookie for the user on the browser.
+  //   req.session.userId = user.id;
+
+  //   return user;
+  // }
+
+
   // ----------------------------------
   // LOGIN
   // ----------------------------------
@@ -58,25 +87,59 @@ export class UserResolver {
   async login(
     @Arg('email', _type => String, { nullable: false }) email: string,
     @Arg('password', _type => String, { nullable: false }) password: string,
-    @Ctx() { req }: Context
+    @Arg('guest', _type => Boolean, { nullable: true }) guest: boolean,
+    @Ctx() { req, redis_client }: Context
   ): Promise<User> {
     console.log('Logging in...');
+    try {
+      // A bit of last minute ducktape to handle guest accounts
+      if (guest/* email == 'test-account@gap.com' */) {
+        const redisResponse: string[] = await new Promise((resolve, reject) => {
+          redis_client.mget(['test_account_limit', 'test_account_current'], (err, data) => {
+            if (err) {
+              reject(`Failed to get guest account state from Redis: ${err}`);
+              // throw new Error(`Failed to get guest account state from Redis: ${err}`);
+            }
+            resolve(data);
+          });
+        });
+        const guestLimit = parseInt(redisResponse[0]);
+        const guestCurrent = parseInt(redisResponse[1]);
 
-    const user = await User.findOne({ where: { email: email.toLowerCase() } });
-    if (!user) {
-      throw new Error('User not found.');
+        console.log('redis response', guestLimit, guestCurrent);
+
+        if (guestCurrent < guestLimit) {
+          await redis_client.set('test_account_current', `${guestCurrent + 1}`);
+          email = `guest-account-${guestCurrent + 1}@gap.com`;
+        }
+        else {
+          await redis_client.set('test_account_current', '0');
+          email = `guest-account-0@gap.com`;
+        }
+      }
+
+
+      const user = await User.findOne({ where: { email: email.toLowerCase() } });
+      if (!user) {
+        throw new Error('User not found.');
+      }
+
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        throw new Error('Incorrect password');
+      }
+
+      // remember to set "request.credentials": "include" in GraphQL playground for the queries to work
+      // this command sets a cookie for the user on the browser.
+      req.session.userId = user.id;
+
+      return user;
+    }
+    catch (err) {
+      throw new Error(`Failed to login: ${err}`);
+
     }
 
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      throw new Error('Incorrect password');
-    }
-
-    // remember to set "request.credentials": "include" in GraphQL playground for the queries to work
-    // this command sets a cookie for the user on the browser.
-    req.session.userId = user.id;
-
-    return user;
   }
 
 
