@@ -10,7 +10,7 @@ import cors from 'cors'; // to allow client and server to run in different ports
 import redis/* , { RedisClient } */ from 'redis';
 import connectRedis from 'connect-redis';
 import session from 'express-session'; // required by connect-redis
-import { COOKIE_NAME } from './constants';
+import { COOKIE_NAME, GUEST_ACCOUNTS_LIMIT } from './constants';
 
 // IGDB API
 import requestIGDBCredentialsOrRetry from './utils/fetchIGDBCredentials';
@@ -20,7 +20,6 @@ import { IGDBCredentials } from './types';
 import testingRouter from './controllers/testing';
 import createApolloSchema from './utils/buildApolloSchema';
 
-
 // We wrap our code in a main() function to be able to use async/await (used in TypeGraphQL's buildSchema)
 const main = async (): Promise<void> => {
 
@@ -29,12 +28,15 @@ const main = async (): Promise<void> => {
 
   // await getConnection().runMigrations(); // Only run migrations that have not been run yet.
 
+
   const app = express();
 
   // Initialize redis sessions server
   const redisConfig = app.get('env') === 'production' ? { host: 'redis' } : undefined; // Change host from default to the name of the docker service (redis) when in production
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient(redisConfig); // This would take the connection parameters, but we leave the default values: https://redislabs.com/lp/node-js-redis/
+  redisClient.set('test_account_limit', `${GUEST_ACCOUNTS_LIMIT}`);
+  redisClient.set('test_account_current', '0');
 
   // Tell express that we have a proxy in front of our app so that sessions work when using Nginx: http://expressjs.com/en/guide/behind-proxies.html#express-behind-proxies
   if (app.get('env') === 'production') app.set("trust proxy", 1);
@@ -99,6 +101,7 @@ const main = async (): Promise<void> => {
       req, // Express middleware-specific context field: https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields
       res, // Express middleware-specific context field: https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields
       igdb_access_token: access_token,
+      redis_client: redisClient,
     }),
     // mocks: true,
   });
