@@ -20,7 +20,7 @@ export class GameService {
       throw new Error('An argument is required.');
     }
     if (maxResults > 40) {
-      throw new Error('Too many requests') // IGDB only allows 4 requests pers second (our max is 4 batches of 10). Just a basic workaroudn to limit requests.
+      throw new Error('Too many requests'); // IGDB only allows 4 requests pers second (our max is 4 batches of 10). Just a basic workaroudn to limit requests.
     }
 
 
@@ -56,7 +56,7 @@ export class GameService {
       `;
       }
       return requestBody;
-    }
+    };
 
     const callAPI = async (requestBody: string) => {
 
@@ -69,8 +69,8 @@ export class GameService {
         }
       });
       // console.log('type in callapi', typeof(response))
-      return response
-    }
+      return response;
+    };
 
     // console.log('body test:', generateRequestBody(undefined, ids));
     // console.log('callapit test:', await (await callAPI(generateRequestBody(undefined, ids))).body);
@@ -80,17 +80,17 @@ export class GameService {
     // We make several requests in batches of 10 as a workaround
     if (ids && maxResults > 10) {
       const splitInGroupsOfN = async (n: number, data: any[]): Promise<any> => {
-        let promises: Promise<any>[] = [];
+        const promises: Promise<any>[] = [];
 
         for (let i = 0; i < data.length; i += n) {
           const currentIdBatch = data.slice(i, i + n)
-          promises.push(callAPI(generateRequestBody(undefined, currentIdBatch)))
+          promises.push(callAPI(generateRequestBody(undefined, currentIdBatch)));
         }
 
         return Promise.all(promises);
-      }
+      };
 
-      const allApiResponses: object[] = await splitInGroupsOfN(10, ids)
+      const allApiResponses: object[] = await splitInGroupsOfN(10, ids);
 
       const parsedBatches = await Promise.all(
         allApiResponses.map(async (response: any) => {
@@ -98,17 +98,17 @@ export class GameService {
           const parsedBatch = await response.json() as Game[];
           return parsedBatch;
         })
-      )
+      );
 
-      let mergedResponses: Game[] = [];
-      parsedBatches.forEach(elem => mergedResponses.push(...elem))
+      const mergedResponses: Game[] = [];
+      parsedBatches.forEach(elem => mergedResponses.push(...elem));
 
       console.log('multiple responses', mergedResponses.map(elem => elem.name));
       games = mergedResponses;
     }
     else {
-      let requestBody = generateRequestBody(name, ids)
-      const response = await callAPI(requestBody)
+      const requestBody = generateRequestBody(name, ids);
+      const response = await callAPI(requestBody);
 
       // const response = await fetch('https://api.igdb.com/v4/games', {
       //   method: 'POST',
@@ -169,8 +169,11 @@ export class GameService {
     console.log('\nGetting Ranked Games...\n------------------------------------------------------');
     try {
       const averageRatings = await this.gameInUserLibraryService.getAverageRatings();
-      const gamesIdsToFetch = averageRatings.filter(game => game.average_rating > 0).map(game => game.igdb_game_id)
-      const fetchedGames = await this.findGamesInIGDB(igdb_access_token, undefined, gamesIdsToFetch, 30)
+      const gamesIdsToFetch = averageRatings.filter(game => game.average_rating > 0).map(game => game.igdb_game_id);
+
+      if (gamesIdsToFetch.length == 0) return [];
+
+      const fetchedGames = await this.findGamesInIGDB(igdb_access_token, undefined, gamesIdsToFetch, 30);
 
       const gamesWithAverageRatings: Game[] = fetchedGames.map(game => {
         const average_rating = averageRatings.find(rating => rating.igdb_game_id === game.id)?.average_rating;
@@ -180,10 +183,8 @@ export class GameService {
           average_rating
         } as Game;
 
-        return gameWithyAvgRating
+        return gameWithyAvgRating;
       }).sort((a, b) => a.average_rating < b.average_rating ? 1 : -1);
-
-      console.log('game', gamesWithAverageRatings.map(game => game.average_rating));
 
       return gamesWithAverageRatings;
     }
