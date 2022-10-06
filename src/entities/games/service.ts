@@ -13,14 +13,14 @@ export class GameService {
   findGamesInIGDB = async (access_token: string, name?: string, ids?: number[], maxResults = 6): Promise<Game[]> => {
     console.log('======================================================');
     console.log('Finding games in IGDB...\n------------------------------------------------------');
-    console.log(`Arguments: name-> ${name}, ids-> ${ids}, maxResults -> ${maxResults}`);
+    console.log(`Arguments:  maxResults -> ${maxResults}, name-> ${name}, ids-> ${ids}`);
 
     if (maxResults < 1) return [];
     if (!name && (!ids || ids.length === 0)) {
       throw new Error('An argument is required.');
     }
-    if (maxResults > 40) {
-      throw new Error('Too many requests'); // IGDB only allows 4 requests pers second (our max is 4 batches of 10). Just a basic workaroudn to limit requests.
+    if (maxResults > 100) {
+      throw new Error('Too many requests'); // IGDB only allows 4 requests pers second. Just a basic workaroudn to limit requests.
     }
 
 
@@ -173,7 +173,7 @@ export class GameService {
 
       if (gamesIdsToFetch.length == 0) return [];
 
-      const fetchedGames = await this.findGamesInIGDB(igdb_access_token, undefined, gamesIdsToFetch, 30);
+      const fetchedGames = await this.findGamesInIGDB(igdb_access_token, undefined, gamesIdsToFetch, 100);
 
       const gamesWithAverageRatings: Game[] = fetchedGames.map(game => {
         const average_rating = averageRatings.find(rating => rating.igdb_game_id === game.id)?.average_rating;
@@ -193,5 +193,4 @@ export class GameService {
       throw new Error(`Failed to get fetch ranking.`);
     }
   }
-
 }
