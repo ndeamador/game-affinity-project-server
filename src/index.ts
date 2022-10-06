@@ -35,6 +35,7 @@ const main = async (): Promise<void> => {
   const redisConfig = app.get('env') === 'production' ? { host: 'redis' } : undefined; // Change host from default to the name of the docker service (redis) when in production
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient(redisConfig); // This would take the connection parameters, but we leave the default values: https://redislabs.com/lp/node-js-redis/
+  redisClient.on('error', (err) => { console.log('Redis Client Error', err); throw new Error(`Redis Client Error: ${err}`) });
   redisClient.set('test_account_limit', `${GUEST_ACCOUNTS_LIMIT}`);
   redisClient.set('test_account_current', '0');
 
