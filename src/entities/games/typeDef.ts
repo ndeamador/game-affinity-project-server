@@ -33,6 +33,9 @@ class Game {
 
   @Field({ nullable: true })
   average_rating: number;
+
+  @Field({ nullable: true })
+  number_of_ratings: number;
 }
 
 export default Game;

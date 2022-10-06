@@ -56,7 +56,7 @@ export class GameInUserLibraryResolver {
   ) {
     const { userId } = req.session;
     if (!userId) throw Error;
-    return this.gameInUserLibraryService.delete(userId, igdb_game_id)
+    return this.gameInUserLibraryService.delete(userId, igdb_game_id);
   }
 
 
@@ -106,6 +106,6 @@ export class GameInUserLibraryResolver {
   // ----------------------------------
   @Query(_returns => [RankingElement])
   async getAverageRatings() {
-    return this.gameInUserLibraryService.getAverageRatings()
+    return this.gameInUserLibraryService.getAverageRatings();
   }
 }

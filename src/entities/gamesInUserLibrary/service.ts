@@ -72,6 +72,7 @@ export class GameInUserLibraryService {
       Target SQL query:
             SELECT igdb_game_id,
                 ROUND(AVG(rating),1) AS average_rating
+                COUNT(NULLIF(rating,0)) AS number_of_ratings
             FROM game_in_user_library
             WHERE rating > 0
             GROUP BY igdb_game_id
@@ -80,12 +81,15 @@ export class GameInUserLibraryService {
 
       const averageRatings = await GameInUserLibrary
         .createQueryBuilder('gameInUserLibrary')
-        .select(['igdb_game_id', 'ROUND(AVG(rating), 1)::real AS average_rating']) // added ::real to counter the JS-incompatible DB numeric type (bigint?) getting casted into a string.
+        .select(['igdb_game_id',
+          'ROUND(AVG(rating), 1)::real AS average_rating',
+          'COUNT(NULLIF(rating,0)) AS number_of_ratings' // counts the total number of ratings excluding unranked ones (rating = 0)
+        ]) // added ::real to counter the JS-incompatible DB numeric type (bigint?) getting casted into a string.
         // .where('rating IS NOT NULL')
         .where('rating > 0')
         .groupBy('igdb_game_id')
         .orderBy('average_rating', 'DESC')
-        .getRawMany()
+        .getRawMany();
 
       if (!averageRatings) throw Error;
       return averageRatings as [RankingElement];
@@ -95,6 +99,4 @@ export class GameInUserLibraryService {
       throw new Error(`Failed to get average ratings.`);
     }
   }
-
-
 }

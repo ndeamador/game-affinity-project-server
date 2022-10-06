@@ -23,7 +23,6 @@ export class GameService {
       throw new Error('Too many requests'); // IGDB only allows 4 requests pers second. Just a basic workaroudn to limit requests.
     }
 
-
     // Note that 'cover', 'genres', 'platforms', etc. are a different entities with their own endpoint, but we can use IGDB expander feature to query, forinstance, cover.url instead of having to query two different endpoints
     // https://api-docs.igdb.com/#expander
     const generateRequestBody = (name?: string, ids?: number[]): string => {
@@ -71,9 +70,6 @@ export class GameService {
       // console.log('type in callapi', typeof(response))
       return response;
     };
-
-    // console.log('body test:', generateRequestBody(undefined, ids));
-    // console.log('callapit test:', await (await callAPI(generateRequestBody(undefined, ids))).body);
 
     let games: Game[] = [];
     // Since we are querying several endpoints (game, platform, genre...) from IGDB, it's considered a 'multi-query' and the request is limited to 10 results
@@ -131,7 +127,6 @@ export class GameService {
       games = await response.json() as Game[];
     }
 
-
     if (games.length === 0) {
       console.log(`No games found.`);
       return [];
@@ -156,10 +151,8 @@ export class GameService {
       }
     }
 
-
     // limit response size to maxResults
     const slicedGames = requiredGames.slice(0, maxResults);
-    // console.log('\nGames sent: ', slicedGames.length, slicedGames.map(game => `${game.name} - ${game.total_rating_count}`));
 
     return slicedGames;
   };
@@ -177,13 +170,15 @@ export class GameService {
 
       const gamesWithAverageRatings: Game[] = fetchedGames.map(game => {
         const average_rating = averageRatings.find(rating => rating.igdb_game_id === game.id)?.average_rating;
+        const number_of_ratings = averageRatings.find(rating => rating.igdb_game_id === game.id)?.number_of_ratings;
 
-        const gameWithyAvgRating = {
+        const gameWithyAvgRatingInfo = {
           ...game,
-          average_rating
+          average_rating,
+          number_of_ratings
         } as Game;
 
-        return gameWithyAvgRating;
+        return gameWithyAvgRatingInfo;
       }).sort((a, b) => a.average_rating < b.average_rating ? 1 : -1);
 
       return gamesWithAverageRatings;
