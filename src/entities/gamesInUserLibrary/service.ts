@@ -31,7 +31,7 @@ export class GameInUserLibraryService {
 
 
   async updateRating(userId: number, igdb_game_id: number, rating: Rating, subrating: number): Promise<GameInUserLibrary> {
-    console.log(`\nUpdating rating (igdb_game_id: ${igdb_game_id} || subrating: ${subrating})...\n------------------------------------------------`);
+    console.log(`\nUpdating rating (igdb_game_id: ${igdb_game_id} || rating: ${rating}|| subrating: ${subrating})...\n------------------------------------------------`);
 
     try {
       // BaseEntity.update({id}, {values to update})
@@ -82,7 +82,7 @@ export class GameInUserLibraryService {
       const averageRatings = await GameInUserLibrary
         .createQueryBuilder('gameInUserLibrary')
         .select(['igdb_game_id',
-          'ROUND(AVG(rating), 1)::real AS average_rating',
+          'ROUND(AVG(rating), 2)::real AS average_rating',
           'COUNT(NULLIF(rating,0)) AS number_of_ratings' // counts the total number of ratings excluding unranked ones (rating = 0)
         ]) // added ::real to counter the JS-incompatible DB numeric type (bigint?) getting casted into a string.
         // .where('rating IS NOT NULL')

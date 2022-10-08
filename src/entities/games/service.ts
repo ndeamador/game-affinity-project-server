@@ -13,7 +13,7 @@ export class GameService {
   findGamesInIGDB = async (access_token: string, name?: string, ids?: number[], maxResults = 6): Promise<Game[]> => {
     console.log('======================================================');
     console.log('Finding games in IGDB...\n------------------------------------------------------');
-    console.log(`Arguments:  maxResults -> ${maxResults}, name-> ${name}, ids-> ${ids}`);
+    console.log(`Arguments:  maxResults -> ${maxResults} || ${ids && ids.length > 1 ? `batch size: ${ids.length} || ids-> ${ids}` : `name-> ${name}`}`);
 
     if (maxResults < 1) return [];
     if (!name && (!ids || ids.length === 0)) {
@@ -74,6 +74,7 @@ export class GameService {
     let games: Game[] = [];
     // Since we are querying several endpoints (game, platform, genre...) from IGDB, it's considered a 'multi-query' and the request is limited to 10 results
     // We make several requests in batches of 10 as a workaround
+    // https://api-docs.igdb.com/#multi-query
     if (ids && maxResults > 10) {
       const splitInGroupsOfN = async (n: number, data: any[]): Promise<any> => {
         const promises: Promise<any>[] = [];
@@ -99,7 +100,7 @@ export class GameService {
       const mergedResponses: Game[] = [];
       parsedBatches.forEach(elem => mergedResponses.push(...elem));
 
-      console.log('multiple responses', mergedResponses.map(elem => elem.name));
+      // console.log('multiple responses', mergedResponses.map(elem => elem.name));
       games = mergedResponses;
     }
     else {
@@ -169,13 +170,12 @@ export class GameService {
       const fetchedGames = await this.findGamesInIGDB(igdb_access_token, undefined, gamesIdsToFetch, 100);
 
       const gamesWithAverageRatings: Game[] = fetchedGames.map(game => {
-        const average_rating = averageRatings.find(rating => rating.igdb_game_id === game.id)?.average_rating;
-        const number_of_ratings = averageRatings.find(rating => rating.igdb_game_id === game.id)?.number_of_ratings;
+        const averageRatingsInfo = averageRatings.find(rating => rating.igdb_game_id === game.id);
 
         const gameWithyAvgRatingInfo = {
           ...game,
-          average_rating,
-          number_of_ratings
+          average_rating: averageRatingsInfo?.average_rating,
+          number_of_ratings: averageRatingsInfo?.number_of_ratings
         } as Game;
 
         return gameWithyAvgRatingInfo;
