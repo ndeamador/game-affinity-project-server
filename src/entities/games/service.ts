@@ -184,8 +184,8 @@ export class GameService {
       return gamesWithAverageRatings;
     }
     catch (err) {
-      console.log(`Failed to get fetch ranking: ${err}`);
-      throw new Error(`Failed to get fetch ranking.`);
+      console.log(`Failed to fetch ranking: ${err}`);
+      throw new Error(`Failed to fetch ranking.`);
     }
   }
 }
