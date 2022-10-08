@@ -13,7 +13,7 @@ export class GameService {
   findGamesInIGDB = async (access_token: string, name?: string, ids?: number[], maxResults = 6): Promise<Game[]> => {
     console.log('======================================================');
     console.log('Finding games in IGDB...\n------------------------------------------------------');
-    console.log(`Arguments:  maxResults -> ${maxResults}, name-> ${name}, ids-> ${ids}`);
+    console.log(`Arguments:  maxResults -> ${maxResults} || ${ids && ids.length > 1 ? `batch size: ${ids.length} || ids-> ${ids}` : `name-> ${name}`}`);
 
     if (maxResults < 1) return [];
     if (!name && (!ids || ids.length === 0)) {
@@ -22,7 +22,6 @@ export class GameService {
     if (maxResults > 100) {
       throw new Error('Too many requests'); // IGDB only allows 4 requests pers second. Just a basic workaroudn to limit requests.
     }
-
 
     // Note that 'cover', 'genres', 'platforms', etc. are a different entities with their own endpoint, but we can use IGDB expander feature to query, forinstance, cover.url instead of having to query two different endpoints
     // https://api-docs.igdb.com/#expander
@@ -72,12 +71,10 @@ export class GameService {
       return response;
     };
 
-    // console.log('body test:', generateRequestBody(undefined, ids));
-    // console.log('callapit test:', await (await callAPI(generateRequestBody(undefined, ids))).body);
-
     let games: Game[] = [];
     // Since we are querying several endpoints (game, platform, genre...) from IGDB, it's considered a 'multi-query' and the request is limited to 10 results
     // We make several requests in batches of 10 as a workaround
+    // https://api-docs.igdb.com/#multi-query
     if (ids && maxResults > 10) {
       const splitInGroupsOfN = async (n: number, data: any[]): Promise<any> => {
         const promises: Promise<any>[] = [];
@@ -103,7 +100,7 @@ export class GameService {
       const mergedResponses: Game[] = [];
       parsedBatches.forEach(elem => mergedResponses.push(...elem));
 
-      console.log('multiple responses', mergedResponses.map(elem => elem.name));
+      // console.log('multiple responses', mergedResponses.map(elem => elem.name));
       games = mergedResponses;
     }
     else {
@@ -131,7 +128,6 @@ export class GameService {
       games = await response.json() as Game[];
     }
 
-
     if (games.length === 0) {
       console.log(`No games found.`);
       return [];
@@ -156,10 +152,8 @@ export class GameService {
       }
     }
 
-
     // limit response size to maxResults
     const slicedGames = requiredGames.slice(0, maxResults);
-    // console.log('\nGames sent: ', slicedGames.length, slicedGames.map(game => `${game.name} - ${game.total_rating_count}`));
 
     return slicedGames;
   };
@@ -176,14 +170,15 @@ export class GameService {
       const fetchedGames = await this.findGamesInIGDB(igdb_access_token, undefined, gamesIdsToFetch, 100);
 
       const gamesWithAverageRatings: Game[] = fetchedGames.map(game => {
-        const average_rating = averageRatings.find(rating => rating.igdb_game_id === game.id)?.average_rating;
+        const averageRatingsInfo = averageRatings.find(rating => rating.igdb_game_id === game.id);
 
-        const gameWithyAvgRating = {
+        const gameWithyAvgRatingInfo = {
           ...game,
-          average_rating
+          average_rating: averageRatingsInfo?.average_rating,
+          number_of_ratings: averageRatingsInfo?.number_of_ratings
         } as Game;
 
-        return gameWithyAvgRating;
+        return gameWithyAvgRatingInfo;
       }).sort((a, b) => a.average_rating < b.average_rating ? 1 : -1);
 
       return gamesWithAverageRatings;

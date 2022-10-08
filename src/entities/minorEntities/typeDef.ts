@@ -75,4 +75,7 @@ export class RankingElement {
 
   @Field()
   average_rating: number;
+
+  @Field({ nullable: true })
+  number_of_ratings: number;
 }
