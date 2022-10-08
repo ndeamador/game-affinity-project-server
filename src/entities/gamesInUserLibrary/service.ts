@@ -95,7 +95,7 @@ export class GameInUserLibraryService {
       return averageRatings as [RankingElement];
     }
     catch (err) {
-      console.log(`Failed to get average ratins: ${err}`);
+      console.log(`Failed to get average ratings: ${err}`);
       throw new Error(`Failed to get average ratings.`);
     }
   }
