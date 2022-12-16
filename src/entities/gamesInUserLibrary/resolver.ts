@@ -12,8 +12,7 @@ export class GameInUserLibraryResolver {
 
   constructor(private readonly gameInUserLibraryService: GameInUserLibraryService) { }
 
-  // ----------------------------------
-  // ADD GAME TO LIBRARY
+  // Add Game to Library.
   // ----------------------------------
   @Mutation(_returns => GameInUserLibrary)
   @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
@@ -27,10 +26,8 @@ export class GameInUserLibraryResolver {
     return this.gameInUserLibraryService.create(userId, gameId, rating);
   }
 
-
-  // ==================================
-  // Update rating
-  // ==================================
+  // Update rating.
+  // ----------------------------------
   @Mutation(_returns => GameInUserLibrary) // For the version that returns the updated object
   @UseMiddleware(isUserAuthenticated)
   async updateRating(
@@ -44,9 +41,7 @@ export class GameInUserLibraryResolver {
     return this.gameInUserLibraryService.updateRating(userId, igdb_game_id, rating, subrating);
   }
 
-
-  // ----------------------------------
-  // REMOVE GAME FROM LIBRARY
+  // Remove game from library.
   // ----------------------------------
   @Mutation(_returns => ID)
   @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
@@ -59,9 +54,7 @@ export class GameInUserLibraryResolver {
     return this.gameInUserLibraryService.delete(userId, igdb_game_id);
   }
 
-
-  // ----------------------------------
-  // GET IDS OF ALL GAMES IN LIBRARY
+  // Get IDs of all games in Library.
   // ----------------------------------
   @Query(_returns => [GameInUserLibrary])
   // @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
@@ -75,34 +68,7 @@ export class GameInUserLibraryResolver {
     return library;
   }
 
-  // // ----------------------------------
-  // // GET ALL GAMES IN LIBRARY
-  // // ----------------------------------
-  // @Query(_returns => [Game])
-  // // @UseMiddleware(isUserAuthenticated) // https://typegraphql.com/docs/0.16.0/middlewares.html#attaching-middlewares
-  // async getLibrary(
-  //   @Ctx() { req, igdb_access_token }: Context,
-  // ) {
-  //   console.log('======================================================');
-  //   console.log('\nGetting library...\n------------------------------------------------------');
-  //   const { userId } = req.session;
-  //   console.log('USER ID: ', userId);
-
-  //   const libraryItems = await GameInUserLibrary.find({ where: { user: userId } });
-  //   // console.log('libraryitems: ', libraryItems);
-  //   const onlyIds: number[] = libraryItems.map(item => item.igdb_game_id);
-  //   // console.log('onlyids:', onlyIds, typeof onlyIds, 'length: ', onlyIds.length);
-
-  //   if (onlyIds.length === 0) return [];
-
-  //   const library = await this.gameService.findGamesInIGDB(igdb_access_token, '', onlyIds, 30);
-  //   // console.log('library response (only names)', library.map(game => game.name));
-  //   return library;
-  // }
-
-
-  // ----------------------------------
-  // GET RANKED GAMES (All users)
+  // Get ranked games (All users).
   // ----------------------------------
   @Query(_returns => [RankingElement])
   async getAverageRatings() {
